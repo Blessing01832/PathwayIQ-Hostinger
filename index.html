@@ -1,0 +1,3463 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PathwayIQ</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Iframe Resizer script for the content window -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.9/iframeResizer.contentWindow.min.js"></script>
+
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body{
+  background:#0b1020;
+  color:#f8fafc;
+  font-family:Inter,system-ui,sans-serif;
+  padding: 20px;
+}
+
+#app{
+  max-width:850px;
+  margin:auto;
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:24px;
+  padding:30px;
+}
+
+/* App title property*/
+h1{
+  font-size:2rem;
+  margin-bottom:10px;
+  color:#f66112;
+}
+
+#status{
+  color:#cbd5e1;
+  margin-bottom:20px;
+}
+
+#progress{
+  width:100%;
+  height:10px;
+  background:#1e293b;
+  border-radius:999px;
+  overflow:hidden;
+  margin-bottom:25px;
+}
+
+#progress-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#2563eb,#06b6d4);
+  transition:.3s;
+}
+
+#step{
+  color:#94a3b8;
+  margin-bottom:12px;
+}
+
+#question{
+  font-size:1.4rem;
+  margin-bottom:20px;
+}
+
+#question-purpose{
+  color:#94a3b8;
+  margin-top:-15px;
+  margin-bottom:20px;
+  font-style:italic;
+}
+
+.option{
+  width:100%;
+  background:#1f2937;
+  border:none;
+  color:white;
+  padding:16px;
+  border-radius:14px;
+  margin-bottom:12px;
+  text-align:left;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.option:hover{
+  background:#374151;
+}
+
+#app textarea,
+#app input{
+  width: 100%;
+  background: #1f2937;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff !important;
+  padding: 16px;
+  border-radius: 14px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+/*textarea property*/
+ #app textarea{
+  /*color:#f66112;*/
+  color: #f8fafc !important;
+}
+
+textarea::placeholder{
+  /*color:#f66112;*/
+  color:#f8fafc;
+  opacity:0.7;
+}
+
+.primary{
+  background:#2563eb;
+  color:white;
+  border:none;
+  padding:16px;
+  border-radius:14px;
+  cursor:pointer;
+  width:100%;
+  font-size:1rem;
+}
+
+.primary:hover{
+  background:#1d4ed8;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  height: 100px;
+}
+.loader div {
+  width: 1rem;
+  height: 1rem;
+  margin: 0 0.5rem;
+  background-color: #2563eb;
+  border-radius: 50%;
+  animation: loader-bounce 1.4s infinite ease-in-out both;
+}
+.loader .dot1 { animation-delay: -0.32s; }
+.loader .dot2 { animation-delay: -0.16s; }
+@keyframes loader-bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1.0); }
+}
+
+.card{
+  background:#0f172a;
+  border-radius:18px;
+  padding:20px;
+  margin-top:18px;
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.card-title{
+  font-weight:700;
+  margin-bottom:10px;
+  color:#e2e8f0;
+}
+
+.summary-title {
+  color: #06b6d4; /* A bright cyan color */
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+.recommendation{
+  margin-bottom:10px;
+}
+
+#app a {
+  color: #fbbf24; /* A bright gold color */
+  text-decoration: none;
+}
+
+#app a:hover {
+  text-decoration: underline;
+}
+
+.result-actions{
+  display:flex;
+  gap:12px;
+  margin-top:20px;
+}
+
+.result-actions button{
+  flex:1;
+}
+
+@media (max-width: 600px) {
+  .result-actions {
+    flex-direction: column;
+  }
+}
+
+.hero {
+  max-width: 850px;
+  margin: 0 auto 20px auto;
+  padding: 30px;
+  background-color: #1c244b;
+  border-radius: 24px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.hero p {
+  color: #ffffff;
+  max-width: 650px;
+  margin: 10px auto 0 auto;
+  line-height: 1.6;
+}
+
+.hero .disclaimer {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin-top: 15px;
+}
+
+footer {
+  max-width: 850px;
+  margin: 30px auto 0 auto;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+footer p {
+  margin-bottom: 5px;
+}
+
+footer a {
+  color: #f66112;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+</style>
+
+
+
+<div class="hero">
+  <h1>PathwayIQ</h1>
+  <p>An intelligent pathway system for academic guidance, admission readiness, and future opportunity alignment. This process uses structured inputs to interpret learning patterns and generate pathway insights. Takes ~3–5 minutes.</p>
+  <p class="disclaimer">Information is used only for academic analysis.</p>
+</div>
+
+<div id="app">
+
+  <div id="status">
+    Adaptive academic intelligence system active.
+  </div>
+
+  <div id="progress">
+    <div id="progress-fill"></div>
+  </div>
+
+  <div id="step"></div>
+
+  <div id="question"></div>
+
+  <div id="content"></div>
+
+</div>
+
+<footer>
+  <p>Adaptive Pathways & Readiness System</p>
+  <p>Developed by the Symphony of Knowledge</p>
+  <p>
+    <a href="https://symphonyofknowledge.com/edtech-rd/#aprs" target="_blank" rel="noopener noreferrer">Supporting research and technical documentation can be found here</a>
+  </p>
+</footer>
+
+<script>
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
+const state = {
+  academicStage:null,
+  scoringMode:"Strict"
+};
+
+let currentNode = "academicStage";
+let activeFlow = {};
+let currentProfile = null;
+let readinessChartInstance = null;
+
+/* =========================================================
+   PDF TEMPLATE CONFIG
+========================================================= */
+
+const pdfTemplate = {
+
+  //centerName:"AdaptRoute- Adaptive Pathways & Readiness System",
+
+  centerName:"AdaptRoute- An Academic Intelligence Initiative",
+
+  initiativeName:"Academic Intelligence Initiative",
+
+  headerColor:"#2563eb",
+
+  /*
+    PLACEHOLDER FOR YOUR LOGO
+
+    Replace with:
+    - Base64 image
+    - uploaded image
+    - hosted image converted to base64
+  */
+
+  logoBase64:null
+};
+
+/* =========================================================
+   FLOW DEFINITIONS
+========================================================= */
+
+/* ===========================
+   COMMON ENTRY
+=========================== */
+
+const entryFlow = {
+
+  academicStage:{
+    label:"Step 1",
+    question:"What best describes your current academic level?",
+    purpose:"This helps us tailor the next questions to your specific academic context.",
+    options:[
+      "Secondary School",
+      "Undergraduate",
+      "Graduate"
+    ]
+  }
+
+};
+
+/* =========================================================
+   SECONDARY SCHOOL FLOW
+========================================================= */
+
+const secondaryFlow = {
+
+  curriculum:{
+    label:"Step 2",
+    question:"Which curriculum are you currently studying, or have you recently completed?",
+    purpose:"Your curriculum informs the university pathways and entry requirements we'll recommend.",
+    options:[
+      "WAEC / NECO",
+      "A-Levels",
+      "IB Diploma (Current or Completed)",
+      "Cambridge",
+      "Other"
+    ],
+    next:"subjects"
+  },
+
+  subjects:{
+    label:"Step 3",
+    question:
+      "List all the subjects from your final secondary school examinations and their respective grades.\nExample:\nMathematics - A1 or 75\nPhysics - B2 or 65\nChemistry - A1 or 70\nEnglish - B3 or 60",
+    purpose:"Listing all your subjects provides a comprehensive view of your academic profile, allowing us to identify your core strengths and recommend the most suitable pathways.",
+    textarea:true,
+    field:"subjects",
+    next:"interest"
+  },
+
+  interest:{
+    label:"Step 4",
+    question:"Which academic area interests you most?",
+    purpose:"Understanding your interests helps us align your academic strengths with suitable fields of study.",
+    options:[
+      "Engineering / Technology",
+      "Medicine / Health Sciences",
+      "Computing / Artificial Intelligence",
+      "Business / Economics",
+      "Law / Public Administration",
+      "Arts / Communication",
+      "Social Sciences",
+      "Education"
+    ],
+    next:"career"
+  },
+
+  career:{
+    label:"Step 5",
+    question:"Which career path are you most interested in?",
+    purpose:"Your career aspirations guide our recommendations for specialized programs and skill development.",
+    options:[
+      "Software Engineering",
+      "Medicine / Surgery",
+      "Engineering",
+      "Data Science / AI",
+      "Accounting / Finance",
+      "Law / Governance",
+      "Media / Communication",
+      "Research / Academia",
+      "Entrepreneurship",
+      "Undecided"
+    ],
+    next:"learningStyle"
+  },
+
+  learningStyle:{
+    label:"Step 6",
+    question:"Which learning style best describes you?",
+    purpose:"This helps us suggest learning environments where you're most likely to succeed.",
+    options:[
+      "Practical / Hands-on",
+      "Research-oriented",
+      "Creative / Visual",
+      "Structured classroom learning",
+      "Independent / Self-paced"
+    ],
+    next:"extracurricularStrength"
+  },
+
+  extracurricularStrength:{
+    label:"Step 7",
+    question:"Which extracurricular activities best describe your strengths?",
+    purpose:"Extracurriculars demonstrate skills like leadership and initiative, which are valuable for admissions.",
+    options:[
+      "Science competitions",
+      "Coding / Technology clubs",
+      "Debate / Public speaking",
+      "Leadership / Student government",
+      "Creative arts / Media",
+      "Sports",
+      "Community service",
+      "No major extracurricular activities"
+    ],
+    next:"studyDestination"
+  },
+
+  studyDestination:{
+    label:"Step 8",
+    question:"Where would you prefer to study?",
+    purpose:"Your preferred study destination helps us identify relevant universities, admission pathways, and scholarship opportunities.",
+    options:[
+      //"Nigeria",
+      "Africa",
+      "United Kingdom",
+      "United States",
+      "Canada",
+      "European Union",
+      "Anywhere with scholarship support"
+    ],
+    next:"financialConstraint"
+  },
+
+  financialConstraint:{
+    label:"Step 9",
+    question:"What best describes your financial situation for university education?",
+    purpose:"This information is crucial for identifying realistic and affordable educational pathways.",
+    options:[
+      "Require full scholarship",
+      "Need partial scholarship support",
+      "Can afford moderate tuition",
+      "Tuition is not a major concern"
+    ],
+    next:"admissionConfidence"
+  },
+
+  admissionConfidence:{
+    label:"Step 10",
+    question:"How confident are you about your admission readiness?",
+    purpose:"This helps us gauge the level of support and guidance you might need.",
+    options:[
+      "Very confident",
+      "Somewhat confident",
+      "Unsure",
+      "Need significant guidance"
+    ],
+    next:"support"
+  },
+
+  support:{
+    label:"Step 11",
+    question:"What support do you currently need most?",
+    purpose:"This helps us provide guidance and resources tailored to your immediate priorities.",
+    options:[
+      "University selection guidance",
+      "Scholarship guidance",
+      "Admission preparation",
+      "Career counseling",
+      "Essay / Personal statement support",
+      "Test preparation",
+      "Interview preparation"
+    ],
+    next:"analysis"
+  }
+
+};
+
+/* =========================================================
+   UNDERGRADUATE FLOW
+========================================================= */
+
+const undergraduateFlow = {
+
+  currentProgram:{
+    label:"Step 2",
+    question:"What is your current program of study?",
+    purpose:"Your current program provides context for your academic journey and future goals.",
+    input:true,
+    field:"currentProgram",
+    next:"currentLevel"
+  },
+
+  currentLevel:{
+    label:"Step 3",
+    question:"What is your current level/year in university?",
+    purpose:"Your year of study helps determine the most relevant advice, whether it's for academic improvement or post-graduate planning.",
+    options:[
+      "100 Level / Year 1",
+      "200 Level / Year 2",
+      "300 Level / Year 3",
+      "400 Level / Year 4",
+      "500 Level+",
+      "Recently graduated"
+    ],
+    next:"cgpa"
+  },
+
+  cgpa:{
+    label:"Step 4",
+    question:"Enter your current CGPA (e.g., 3.5 on a 5.0 scale) or academic average (e.g., 15 on a 20-point scale).",
+    purpose:"Your academic performance is one of the most important factors in admission and scholarship considerations.",
+    input:true,
+    field:"cgpa",
+    next:"academicChallenge"
+  },
+
+  academicChallenge:{
+    label:"Step 5",
+    question:"What academic challenge affects you most currently?",
+    purpose:"Identifying your challenges allows us to suggest targeted strategies for improvement.",
+    options:[
+      "Low CGPA",
+      "Course difficulty",
+      "Lack of motivation",
+      "Poor study strategy",
+      "Balancing work and academics",
+      "No major challenge"
+    ],
+    next:"transferIntent"
+  },
+
+  transferIntent:{
+    label:"Step 6",
+    question:"What best describes your current goal?",
+    purpose:"Your current goal helps us tailor guidance to your academic priorities and identify the most relevant opportunities and pathways.",
+    options:[
+      "Change program",
+      "Transfer institution",
+      "Both program and institution",
+      "Academic guidance only",
+      "Preparing for postgraduate study"
+    ],
+    next: (value) => {
+      if (value === "Academic guidance only" || value === "Preparing for postgraduate study") {
+        return "specialization";
+      }
+      return "transferReason";
+    }
+  },
+
+  transferReason:{
+    label:"Step 7",
+    question:"Why are you considering a transfer or academic change?",
+    purpose:"Understanding your motivation for change helps us provide more relevant guidance.",
+    options:[
+      "Poor academic fit",
+      "Career alignment",
+      "Better opportunities",
+      "Financial reasons",
+      "Location preference",
+      "Family reasons",
+      "Not considering transfer"
+    ],
+    next:"specialization"
+  },
+
+  specialization:{
+    label:"Step 8",
+    question:"Which specialization area interests you most?",
+    purpose:"Your interest in a specialization helps us recommend advanced courses or research opportunities.",
+    options:[
+      "Software / Artificial Intelligence",
+      "Engineering Systems",
+      "Finance / Business Analytics",
+      "Health Sciences",
+      "Research / Academia",
+      "Media / Communication",
+      "Public Policy / Governance",
+      "Entrepreneurship"
+    ],
+    next:"internshipExperience"
+  },
+
+  internshipExperience:{
+    label:"Step 9",
+    question:"Do you currently have internship or industry experience?",
+    purpose:"Industry experience is a significant factor for both graduate studies and job market competitiveness.",
+    options:[
+      "Yes - substantial experience",
+      "Yes - limited experience",
+      "Currently seeking opportunities",
+      "No experience yet"
+    ],
+    next:"career"
+  },
+
+  career:{
+    label:"Step 10",
+    question:"What is your long-term career objective?",
+    purpose:"Your long-term objective helps shape your academic and extracurricular strategy.",
+    options:[
+      "Industry employment",
+      "Entrepreneurship",
+      "Research / Academia",
+      "Public sector",
+      "International career opportunities",
+      "Still exploring"
+    ],
+    next:"careerCertainty"
+  },
+
+  careerCertainty:{
+    label:"Step 11",
+    question:"How certain are you about your future career direction?",
+    purpose:"This helps us understand how much exploratory guidance you may need.",
+    options:[
+      "Very certain",
+      "Moderately certain",
+      "Still exploring options",
+      "Completely unsure"
+    ],
+    next:"support"
+  },
+
+  support:{
+    label:"Step 12",
+    question:"What support do you currently need most?",
+    purpose:"Knowing your needs allows us to provide targeted recommendations and resources.",
+    options:[
+      "Academic recovery strategy",
+      "Transfer guidance",
+      "Career counseling",
+      "Internship opportunities",
+      "Research opportunities",
+      "Postgraduate planning",
+      "Scholarship support"
+    ],
+    next:"analysis"
+  }
+
+};
+
+/* =========================================================
+   GRADUATE FLOW
+========================================================= */
+
+const graduateFlow = {
+
+  undergraduateDiscipline:{
+    label:"Step 2",
+    question:"What was your undergraduate discipline?",
+    purpose:"Your undergraduate background is the foundation for your graduate-level pursuits.",
+    input:true,
+    field:"undergraduateDiscipline",
+    next:"cgpa"
+  },
+
+  cgpa:{
+    label:"Step 3",
+    question:"What was your final GPA, CGPA, or academic average from your most recent degree?",
+    purpose:"Your academic performance is a primary factor for graduate admissions and funding. ",
+    input:true,
+    field:"cgpa",
+    //next:"academicAchievements"
+    next:"courseworkHistory"
+  },
+
+  courseworkHistory: {
+    label: "Step 4",
+    question: "List at least 2 courses with their grades from each of your two most recent semesters. Example:\nSemester 1:\nEconometrics - A\nDatabase Systems - B+\nSemester 2:\nMacroeconomic Theory - A-\nProject Analysis - B",
+    purpose: "This provides granular insight into your academic performance and areas of specialization, which is more revealing than CGPA alone.",
+    textarea: true,
+    field: "courseworkHistory",
+    next: "academicAchievements"
+  },
+
+  academicAchievements: {
+    label: "Step 5",
+    question: "Beyond your GPA, what are your most significant academic achievements? (e.g., Dean's List, Best Project Award, Conference Presentation)",
+    purpose: "This helps us understand your academic strengths beyond a single number, which is crucial for competitive applications.",
+    input: true,
+    field: "academicAchievements",
+    next: "graduateGoal"
+  },
+
+  graduateGoal:{
+    label:"Step 6",
+    question:"What is your primary graduate objective?",
+    purpose:"Your primary objective helps us tailor advice for program selection and application strategy.",
+    options:[
+      "Master's degree",
+      "PhD / Doctoral pathway",
+      "Research specialization",
+      "Career advancement",
+      "Career transition"
+    ],
+    next:"targetSpecialization"
+  },
+
+  targetSpecialization: {
+    label:"Step 7",
+    question:"Which graduate specialization or research focus do you want to pursue?",
+    purpose:"This helps us recommend a more precise and relevant graduate pathway.",
+    options:[
+      "Finance / Economics",
+      "Data Science / Artificial Intelligence",
+      "Engineering / Systems",
+      "Health / Biomedical",
+      "Public Policy / Development",
+      "Business Analytics / Management",
+      "Interdisciplinary research"
+    ],
+    next:"researchInterest"
+  },
+
+  researchInterest:{
+    label:"Step 8",
+    question:"Describe your primary research interests in detail. (e.g., 'Developing novel machine learning algorithms for early cancer detection using genomic data.')",
+    purpose:"A detailed description allows for a more accurate analysis of your research focus and alignment with potential programs.",
+    field:"researchInterest",
+    textarea: true,
+    next:"thesisExperience"
+  },
+
+  thesisExperience:{
+    label:"Step 9",
+    question:"Did you complete a thesis, capstone, or major research project?",
+    purpose:"Your prior research experience is a strong indicator of your readiness for graduate-level research.",
+    options:[
+      "Yes - extensive research project",
+      "Yes - moderate project",
+      "Minimal research exposure",
+      "No research project"
+    ],
+    next: 'technicalSkills'
+  },
+
+  technicalSkills:{
+    label:"Step 10",
+    question:"What is your primary area of technical expertise?",
+    purpose:"This helps us identify your core competency, which is a strong signal for specialized graduate programs.",
+    options:[
+      'Programming (Python, R, C++)', 
+      'Data Analysis & ML (TensorFlow, PyTorch)', 
+      'Lab Techniques (PCR, CRISPR, Microscopy)', 
+      'Engineering Software (AutoCAD, MATLAB)', 
+      'Statistical Software (SPSS, Stata)',
+      'Qualitative Software (NVivo, Quirkos)',
+      'None'
+    ],
+    field:"technicalSkills",
+    next:"publicationCount"
+  },
+
+  publicationCount:{
+    label:"Step 11",
+    question:"Do you have publications or conference papers?",
+    purpose:"Publications are a key metric for assessing research output and competitiveness for PhD programs.",
+    options:[
+      "None",
+      "1 - 2 publications",
+      "3 - 5 publications",
+      "More than 5 publications"
+    ],
+    next:"firstAuthor"
+  },
+
+  firstAuthor: {
+    label:"Step 12",
+    question:"Are you a first author on any of these publications?",
+    purpose:"First-author publications carry more weight for graduate admissions and funding.",
+    options:[
+      "Yes - multiple first-author papers",
+      "Yes - at least one first-author paper",
+      "No - co-author only",
+      "No publications"
+    ],
+    next: "manuscriptsInPrep"
+  },
+
+  manuscriptsInPrep: {
+    label:"Step 13",
+    question:"Do you have manuscripts or conference submissions in preparation?",
+    purpose:"Manuscripts in preparation indicate near-term research output and momentum.",
+    options:[
+      "Yes - draft ready",
+      "Yes - data analysis underway",
+      "Planned but not started",
+      "No"
+    ],
+    next: "timeAvailability"
+  },
+
+  timeAvailability: {
+    label:"Step 14",
+    question:"What percentage of your weekly time can you commit to research? (e.g., 20)",
+    purpose:"Availability helps determine realistic project timelines and funding needs.",
+    input: true,
+    field: "timeAvailability",
+    next: "advisorPreference"
+  },
+
+  advisorPreference:{
+    label:"Step 15",
+    question:"Do you already have a preferred supervisor or research group?",
+    purpose:"Identifying a supervisor is a critical step in the graduate application process.",
+    options:[
+      "Yes - specific supervisor identified",
+      //"Yes - specific university identified",
+      "Research area identified only",
+      "Still exploring options"
+    ],
+    next:"studyDestination"
+  },
+
+  studyDestination:{
+    label:"Step 16",
+    question:"Where are you interested in pursuing graduate study?",
+    purpose:"Your location preference helps us focus on relevant universities and funding opportunities.",
+    options:[
+      "Africa",
+      "United Kingdom",
+      "United States",
+      "Canada",
+      "European Union",
+      "Asia",
+      "Anywhere with strong funding"
+    ],
+    next:"funding"
+  },
+
+  funding:{
+    label:"Step 17",
+    question:"Will you require scholarship or funding support?",
+    purpose:"Understanding your financial needs is essential for a successful graduate school strategy.",
+    options:[
+      "Require full funding",
+      "Require partial funding",
+      "Can self-fund partially",
+      "Funding not required"
+    ],
+    next:"careerGoal"
+  },
+
+  careerGoal:{
+    label:"Step 18",
+    question:"What is your long-term professional objective?",
+    purpose:"Your long-term goals inform our recommendations for academic vs. industry-focused programs.",
+    options:[
+      "Academic researcher",
+      "University lecturer",
+      "Industry specialist",
+      "Corporate leadership",
+      "Entrepreneurship",
+      "Public policy / development"
+    ],
+    next:"support"
+  },
+
+  support:{
+    label:"Step 19",
+    question:"What support do you currently need most?",
+    purpose:"Understanding your current needs helps us prioritise recommendations, resources, and guidance that are most relevant to you.",
+    options:[
+      "Supervisor matching",
+      "Research proposal development",
+      "Scholarship application guidance",
+      "Graduate school selection",
+      "Publication strategy",
+      "Career transition guidance"
+    ],
+    next:"analysis"
+  }
+
+};
+
+/* =========================================================
+   ANALYSIS NODE
+========================================================= */
+
+const analysisNode = {
+
+  label:"Final Analysis",
+
+  question:
+    "Generating your adaptive academic pathway analysis...",
+
+  analysis:true
+
+};
+
+/* =========================================================
+   FLOW INITIALIZATION
+========================================================= */
+
+function initializeFlow(stage){
+
+  if(stage === "Secondary School"){
+    activeFlow = secondaryFlow;
+  }
+
+  if(stage === "Undergraduate"){
+    activeFlow = undergraduateFlow;
+  }
+
+  if(stage === "Graduate"){
+    activeFlow = graduateFlow;
+  }
+
+}
+
+/* =========================================================
+   RENDER ENGINE
+========================================================= */
+
+function renderNode(nodeKey){
+
+  currentNode = nodeKey;
+
+  let node;
+
+  /* ===========================
+     ENTRY FLOW
+  =========================== */
+
+  if(nodeKey === "academicStage"){
+
+    node = entryFlow.academicStage;
+    document.getElementById("step").innerText = "Step 1 of 12-14";
+
+  }
+
+  /* ===========================
+     ANALYSIS STATE
+  =========================== */
+
+  else if(nodeKey === "analysis"){
+
+    const node = analysisNode;
+    document.getElementById("step").innerText = node.label;
+    document.getElementById("question").innerText = node.question;
+    document.getElementById("progress-fill").style.width = "100%";
+    document.getElementById("content").innerHTML = `
+      <div class="loader">
+        <div class="dot1"></div>
+        <div class="dot2"></div>
+        <div class="dot3"></div>
+      </div>
+    `;
+    
+    setTimeout(() => {
+      try {
+        generateAnalysis();
+      } catch (e) {
+        console.error('generateAnalysis invocation error', e);
+        document.getElementById('content').innerHTML = '<div class="card"><div class="card-title">Error</div><div style="color:#f87171">An error occurred during analysis: ' + e.message + '</div></div>';
+      }
+    }, 2500);
+
+    return;
+
+  }
+
+  /* ===========================
+     NORMAL FLOW
+  =========================== */
+
+  else {
+
+    const totalSteps = Object.keys(activeFlow).length + 1;
+    const currentIndex = Object.keys(activeFlow).indexOf(nodeKey) + 2;
+    node = activeFlow[nodeKey];
+    document.getElementById("step").innerText = `Step ${currentIndex} of ${totalSteps}`;
+
+  }
+
+  document.getElementById("question").innerText =
+    node.question;
+
+  // Render purpose
+  let purposeEl = document.getElementById("question-purpose");
+  if (node.purpose) {
+    if (!purposeEl) {
+      purposeEl = document.createElement('div');
+      purposeEl.id = 'question-purpose';
+      document.getElementById('question').after(purposeEl);
+    }
+    purposeEl.innerText = node.purpose;
+  } else {
+    if (purposeEl) {
+      purposeEl.remove();
+    }
+  }
+
+
+
+  updateProgress();
+
+  const content =
+    document.getElementById("content");
+  
+
+  /* ===========================
+     OPTIONS
+  =========================== */
+
+  if(node.options){
+
+    content.innerHTML = node.options.map(option => `
+      <button class="option" onclick="selectOption('${option.replace(/'/g, "\\'")}')">
+        ${option}
+      </button>
+    `).join("");
+
+    return;
+  }
+
+  
+
+  /* ===========================
+     INPUT
+  =========================== */
+
+  if(node.input){
+
+    content.innerHTML = `
+      <input id="user-input" placeholder="Enter response"/>
+
+      <button class="primary" onclick="submitInput('${node.field}')">
+        Continue
+      </button>
+    `;
+
+    return;
+  }
+
+  /* ===========================
+     TEXTAREA
+  =========================== */
+
+  if(node.textarea){
+
+    content.innerHTML = `
+      <textarea rows="6" id="user-input"></textarea>
+
+      <button class="primary" onclick="submitInput('${node.field}')">
+        Continue
+      </button>
+    `;
+
+    return;
+  }
+
+}
+
+/* =========================================================
+   OPTION HANDLER
+========================================================= */
+
+function selectOption(value){
+
+  state[currentNode] = value;
+
+  /* ===========================
+     STAGE DETECTION
+  =========================== */
+
+  if(currentNode === "academicStage"){
+
+    initializeFlow(value);
+
+    renderNode(Object.keys(activeFlow)[0]);
+
+    return;
+  }
+
+  const nextConfig = activeFlow[currentNode].next;
+  let nextNode;
+
+  if (typeof nextConfig === 'function') {
+    nextNode = nextConfig(value);
+  } else {
+    nextNode = nextConfig;
+  }
+
+  if(nextNode === "analysis"){
+    renderNode("analysis");
+    return;
+  }
+
+  renderNode(nextNode);
+}
+
+/* =========================================================
+   VALIDATION ENGINE
+========================================================= */
+
+function validateInput(field, value){
+
+  // Basic required-field enforcement (empty values not allowed except opt-ins)
+  const optionalFields = [];
+  if(!value){
+    if(optionalFields.includes(field)) return { valid:true };
+    return { valid:false, message: 'This field is required.' };
+  }
+
+
+  /* ===========================
+     SUBJECT VALIDATION
+  =========================== */
+
+  if(field === "subjects"){
+
+    const lines = value
+      .split("\n")
+      .map(line => line.trim())
+      .filter(Boolean);
+
+    if(lines.length < 3){
+
+      return {
+        valid:false,
+        message:"Please enter at least 3 subjects."
+      };
+
+    }
+
+    const pattern =
+      /^[A-Za-z\s&/()-]+[\-:–—]\s?(A1|B2|B3|C4|C5|C6|D7|E8|F9|[0-9]{1,3})$/i;
+
+    const invalid = lines.some(line => !pattern.test(line));
+
+    if(invalid){
+
+      return {
+        valid:false,
+        message:
+          "Use format like Mathematics - A1 or Physics - 85"
+      };
+
+    }
+
+    return { valid:true };
+
+  }
+
+  /* ===========================
+     CGPA VALIDATION
+  =========================== */
+
+  if(field === "cgpa"){
+
+    let numeric = parseFloat(value);
+
+    if(isNaN(numeric)){
+
+      return {
+        valid:false,
+        message:"Please enter a valid numeric score."
+      };
+
+    }
+
+    // Accommodate both 0-5 and 0-20 scales.
+    if(numeric < 0 || numeric > 20){
+
+      return {
+        valid:false,
+        message:"Your score must be between 0 and 20."
+      };
+
+    }
+
+    return { valid:true };
+
+  }
+
+  if(field === "courseworkHistory"){
+    const lines = value.split("\n").map(l => l.trim()).filter(Boolean);
+    const courseLines = lines.filter(l => l.includes('-'));
+    if (courseLines.length < 2) {
+      return { valid: false, message: "Please list at least 2 courses with their grades, like 'Advanced Algorithms - A'." };
+    }
+    return { valid: true };
+  }
+
+  /* ===========================
+     TEXTAREA VALIDATION
+  =========================== */
+  if(field === "researchInterest"){
+    if(!value || value.length < 30){
+
+      return {
+        valid:false,
+        message:"Please provide more detail (at least 30 characters)."
+      };
+
+    }
+
+    return { valid:true };
+
+  }
+
+  return { valid:true };
+
+}
+
+/* =========================================================
+   INPUT HANDLER
+========================================================= */
+
+function submitInput(field){
+
+  const value =
+    document.getElementById("user-input").value.trim();
+
+  const validation = validateInput(field, value);
+
+  // Remove existing error message
+  const errorEl = document.getElementById('input-error');
+  if (errorEl) errorEl.remove();
+
+  if(!validation.valid){
+
+    // Display inline error
+    const inputEl = document.getElementById('user-input');
+    const errorDiv = document.createElement('div');
+    errorDiv.id = 'input-error';
+    errorDiv.innerText = validation.message;
+    errorDiv.style.color = '#f87171';
+    errorDiv.style.marginTop = '-10px';
+    errorDiv.style.marginBottom = '10px';
+    inputEl.after(errorDiv);
+    return;
+
+  }
+
+  state[field] = value;
+
+  const next = activeFlow[currentNode].next;
+
+  if(next === "analysis"){
+
+    renderNode("analysis");
+    
+    return;
+
+  }
+
+  renderNode(next);
+
+}
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+function updateProgress(){
+
+  const keys = Object.keys(activeFlow);
+
+  if(currentNode === "academicStage"){
+    document.getElementById("progress-fill").style.width = "5%";
+    return;
+  }
+
+  const index = keys.indexOf(currentNode);
+
+  const progress = ((index + 1) / keys.length) * 100;
+
+  document.getElementById("progress-fill").style.width = `${progress}%`;
+}
+
+/* =========================================================
+   SUBJECT INFERENCE ENGINE
+========================================================= */
+
+function parseSubjects(subjectText){
+
+  const lines = subjectText
+    .split("\n")
+    .map(line => line.trim())
+    .filter(Boolean);
+
+  return lines.map(line => {
+
+    const parts =
+      line.split(/[-:–—]/);
+
+    const subject =
+      parts[0].trim().toLowerCase();
+
+    const rawGrade =
+      parts[1].trim().toUpperCase();
+
+    let score = 0;
+
+    const gradeMap = {
+      A1: 95,
+      B2: 85,
+      B3: 80,
+      C4: 75,
+      C5: 70,
+      C6: 65,
+      D7: 55,
+      E8: 45,
+      F9: 30
+    };
+
+    const mappedScore = gradeMap.hasOwnProperty(rawGrade)
+      ? gradeMap[rawGrade]
+      : parseInt(rawGrade, 10);
+
+    score = Number.isFinite(mappedScore)
+      ? Math.min(Math.max(mappedScore, 0), 100)
+      : 0;
+
+    return {
+      subject,
+      score
+    };
+
+  });
+
+}
+
+/* =========================================================
+   LANGUAGE & PERSONALIZATION HELPERS
+========================================================= */
+
+function sentenceCase(text){
+  if(!text || typeof text !== "string") return "";
+  const trimmed = text.trim();
+  if(!trimmed) return "";
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
+function withTerminalPunctuation(text){
+  if(!text) return "";
+  if(/[.!?]$/.test(text)) return text;
+  return `${text}.`;
+}
+
+function withoutTerminalPunctuation(text){
+  if(!text || typeof text !== "string") return "";
+  return text.trim().replace(/[.!?]+$/g, "");
+}
+
+function normalizeStatements(items){
+  const unique = new Set();
+  return (items || [])
+    .map(item => withTerminalPunctuation(sentenceCase(item)))
+    .filter(Boolean)
+    .filter(item => {
+      const key = item.toLowerCase();
+      if(unique.has(key)) return false;
+      unique.add(key);
+      return true;
+    });
+}
+
+function formatList(items){
+  if(!items || items.length === 0) return "";
+  if(items.length === 1) return items[0];
+  if(items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
+function buildProfileSignals(){
+  const stage = state.academicStage;
+  const signals = [];
+
+  if(stage === "Secondary School"){
+    if(state.interest) signals.push(`interest in ${state.interest}`);
+    if(state.career && !state.career.includes("Undecided")) signals.push(`career preference for ${state.career}`);
+    if(state.studyDestination) signals.push(`a study destination preference for ${state.studyDestination}`);
+    if(state.support) signals.push(`a support priority around ${state.support.toLowerCase()}`);
+  }
+
+  if(stage === "Undergraduate"){
+    if(state.currentProgram) signals.push(`current studies in ${state.currentProgram}`);
+    if(state.specialization) signals.push(`a specialization focus on ${state.specialization}`);
+    if(state.career) signals.push(`a long-term objective around ${state.career.toLowerCase()}`);
+    if(state.support) signals.push(`an immediate support need in ${state.support.toLowerCase()}`);
+  }
+
+  if(stage === "Graduate"){
+    if(state.undergraduateDiscipline) signals.push(`an academic foundation in ${state.undergraduateDiscipline}`);
+    if(state.targetSpecialization) signals.push(`a target specialization in ${state.targetSpecialization}`);
+    if(state.technicalSkills && !state.technicalSkills.includes("None")) signals.push(`technical capability in ${state.technicalSkills}`);
+    if(state.careerGoal) signals.push(`a professional objective toward ${state.careerGoal.toLowerCase()}`);
+  }
+
+  return signals;
+}
+
+function normalizeCGPAto100(value){
+  if(value === null || value === undefined || value === "") return null;
+  const parsed = parseFloat(value);
+  if(isNaN(parsed)) return null;
+  if(parsed <= 5) return Math.min(Math.max((parsed / 5) * 100, 0), 100);
+  if(parsed <= 20) return Math.min(Math.max((parsed / 20) * 100, 0), 100);
+  return Math.min(Math.max(parsed, 0), 100);
+}
+
+function clamp(value, min, max){
+  return Math.min(Math.max(value, min), max);
+}
+
+function getScoringProfile(){
+  const mode = state.scoringMode === "Standard" ? "Standard" : "Strict";
+
+  if(mode === "Standard"){
+    return {
+      mode,
+      componentBaselines: {
+        academic: 35,
+        experience: 30,
+        career: 28,
+        admission: 28,
+        financial: 35
+      },
+      strictnessMin: 0.8,
+      thresholds: {
+        high: 16,
+        moderate: 11,
+        developing: 6
+      }
+    };
+  }
+
+  return {
+    mode,
+    componentBaselines: {
+      academic: 25,
+      experience: 20,
+      career: 20,
+      admission: 20,
+      financial: 25
+    },
+    strictnessMin: 0.65,
+    thresholds: {
+      high: 17,
+      moderate: 12,
+      developing: 7
+    }
+  };
+}
+
+function setScoringMode(mode){
+  if(mode !== "Strict" && mode !== "Standard") return;
+  state.scoringMode = mode;
+  if(currentProfile){
+    generateAnalysis();
+  }
+}
+
+function computeReadinessCoverage(stage){
+  const fieldMap = {
+    "Secondary School": ["subjects", "interest", "career", "learningStyle", "extracurricularStrength", "financialConstraint", "admissionConfidence", "studyDestination"],
+    "Undergraduate": ["currentProgram", "currentLevel", "cgpa", "specialization", "career", "careerCertainty", "internshipExperience", "support"],
+    "Graduate": ["undergraduateDiscipline", "cgpa", "courseworkHistory", "targetSpecialization", "researchInterest", "publicationCount", "advisorPreference", "funding", "careerGoal"]
+  };
+
+  const expected = fieldMap[stage] || [];
+  if(expected.length === 0) return 1;
+
+  const completed = expected.filter(key => {
+    const value = state[key];
+    if(value === null || value === undefined) return false;
+    if(typeof value === "string") return value.trim().length > 0;
+    return true;
+  }).length;
+
+  return clamp(completed / expected.length, 0, 1);
+}
+
+function enforceStageRecommendationGuardrails(stage, recommendations){
+  const bannedPatterns = {
+    "Secondary School": [/research/i, /thesis/i, /publication/i, /peer-reviewed/i, /supervisor/i, /manuscript/i, /doctoral/i, /phd/i],
+    "Undergraduate": [/waec/i, /neco/i, /final secondary/i],
+    "Graduate": [/waec/i, /neco/i, /student government/i]
+  };
+
+  const patterns = bannedPatterns[stage] || [];
+  const filtered = (recommendations || []).filter(item => !patterns.some(rx => rx.test(item || "")));
+
+  if(filtered.length > 0) return filtered;
+
+  if(stage === "Secondary School"){
+    return ["Build a focused admission plan by matching your strongest subjects and interests to target university programs."];
+  }
+
+  if(stage === "Undergraduate"){
+    return ["Prioritize practical projects and internships that strengthen your specialization profile for next-step opportunities."];
+  }
+
+  return ["Build a focused graduate progression plan around your specialization, funding strategy, and supervisor-fit criteria."];
+}
+
+function buildConfidenceExplanation(){
+  const stage = state.academicStage;
+  const drivers = [];
+
+  if(state.subjects) drivers.push("Subject-level data was provided, improving pathway-fit resolution.");
+  if(state.cgpa) drivers.push("Academic performance data was provided, strengthening readiness calibration.");
+  if(state.career || state.careerGoal) drivers.push("Career-direction inputs were provided, improving trajectory targeting.");
+
+  if(stage === "Graduate"){
+    if(state.targetSpecialization) drivers.push("Specialization intent was provided, improving graduate pathway precision.");
+    if(state.publicationCount || state.firstAuthor) drivers.push("Research-output indicators were provided, improving competitiveness inference.");
+    if(state.advisorPreference) drivers.push("Supervisor-preference data was provided, improving admission strategy relevance.");
+  }
+
+  if(stage === "Undergraduate"){
+    if(state.specialization) drivers.push("Specialization focus was provided, improving recommendation specificity.");
+    if(state.internshipExperience) drivers.push("Experience-level input was provided, improving practical-readiness estimates.");
+  }
+
+  if(stage === "Secondary School"){
+    if(state.extracurricularStrength) drivers.push("Extracurricular information was provided, improving holistic profile assessment.");
+    if(state.studyDestination) drivers.push("Study-destination preference was provided, improving recommendation relevance.");
+  }
+
+  const coveragePct = Math.round(computeReadinessCoverage(stage) * 100);
+  drivers.push(`Profile completeness is approximately ${coveragePct}%, which directly affects confidence.`);
+
+  return normalizeStatements(drivers);
+}
+
+/* PATHWAY WEIGHTING ENGINE 
+===================================*/
+function computePathwayScores(subjects){
+
+  const scores = {
+
+    engineering:0,
+    medicine:0,
+    computing:0,
+    business:0,
+    arts:0
+
+  };
+
+  subjects.forEach(item => {
+
+    const s = item.subject;
+    const grade = item.score;
+
+    /* ===========================
+       ENGINEERING
+    =========================== */
+
+    if(
+      s.includes("math") ||
+      s.includes("physics")
+    ){
+
+      scores.engineering += grade * 1.5;
+
+    }
+
+    /* ===========================
+       MEDICINE
+    =========================== */
+
+    if(
+      s.includes("biology") ||
+      s.includes("chemistry")
+    ){
+
+      scores.medicine += grade * 1.5;
+
+    }
+
+    /* ===========================
+       COMPUTING
+    =========================== */
+
+    if(
+      s.includes("computer") ||
+      s.includes("ict")
+    ){
+
+      scores.computing += grade * 1.5;
+
+    }
+
+    /* ===========================
+       BUSINESS
+    =========================== */
+
+    if(
+      s.includes("economics") ||
+      s.includes("commerce") ||
+      s.includes("accounting")
+    ){
+
+      scores.business += grade * 1.3;
+
+    }
+
+    /* ===========================
+       ARTS
+    =========================== */
+
+    if(
+      s.includes("literature") ||
+      s.includes("government")
+    ){
+
+      scores.arts += grade * 1.2;
+
+    }
+
+  });
+
+  return scores;
+
+}
+
+/* COURSEWORK PARSING & ANALYSIS
+===================================*/
+function parseCoursework(courseworkText) {
+  if (!courseworkText) return [];
+  
+  const lines = courseworkText.split("\n").map(line => line.trim()).filter(Boolean);
+  const gradeMap = { 'A': 95, 'A-': 92, 'B+': 88, 'B': 85, 'B-': 82, 'C+': 78, 'C': 75, 'D': 65, 'F': 50 };
+
+  return lines
+    .filter(line => line.includes('-'))
+    .map(line => {
+      const parts = line.split(/[-:–—]/);
+      if (parts.length < 2) return null;
+
+      const course = parts[0].trim().toLowerCase();
+      const rawGrade = parts[1].trim().toUpperCase();
+      
+      let score = 0;
+      const numericGrade = parseFloat(rawGrade);
+
+      if (!isNaN(numericGrade) && numericGrade >= 0 && numericGrade <= 100) {
+        score = numericGrade;
+      } else if (gradeMap.hasOwnProperty(rawGrade)) {
+        score = gradeMap[rawGrade];
+      } else if (gradeMap.hasOwnProperty(rawGrade.charAt(0))) {
+        score = gradeMap[rawGrade.charAt(0)]; // Handle A+, A etc as A
+      }
+
+      return { course, score };
+    }).filter(Boolean);
+}
+
+function analyzeCourseworkThemes(courses) {
+  const themes = { computing: 0, engineering: 0, biomedical: 0, business: 0, stats: 0, scores: [] };
+  if (!courses || courses.length === 0) return themes;
+
+  const themeKeywords = {
+    computing: ['algorithm', 'data', 'machine learning', 'network', 'software', 'computer', 'programming'],
+    engineering: ['engineering', 'systems', 'mechanics', 'thermodynamics', 'electrical'],
+    biomedical: ['biology', 'molecular', 'cell', 'genetic', 'biomedical', 'cancer'],
+    business: ['business', 'finance', 'economic', 'management', 'accounting'],
+    stats: ['statistic', 'probability', 'stata', 'spss']
+  };
+
+  courses.forEach(item => {
+    themes.scores.push(item.score);
+    for (const theme in themeKeywords) {
+      if (themeKeywords[theme].some(keyword => item.course.includes(keyword))) {
+        themes[theme] += item.score;
+      }
+    }
+  });
+
+  return themes;
+}
+
+/* =========================================================
+   GRADUATE KEYWORD ANALYSIS ENGINE
+========================================================= */
+
+function analyzeResearchProfile() {
+  const textCorpus = `${state.researchInterest || ''}`.toLowerCase();
+  
+  function escapeRegExp(str){
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  const keywordMap = {
+    computing: ['python', 'java', 'c++', 'machine learning', 'ml', 'ai', 'artificial intelligence', 'data science', 'tensorflow', 'pytorch', 'nlp', 'natural language processing', 'computer vision', 'algorithm', 'neural network', 'deep learning'],
+    biomedical: ['biology', 'biomedical', 'genetics', 'crispr', 'pcr', 'molecular', 'cell', 'cancer', 'neuroscience', 'pharmacology', 'immunology', 'dna', 'rna', 'protein', 'mass spectrometry'],
+    engineering: ['matlab', 'autocad', 'solidworks', 'engineering', 'mechanical', 'electrical', 'civil', 'chemical', 'thermodynamics', 'fluid mechanics', 'control systems', 'robotics', 'renewable energy'],
+    business: ['finance', 'economics', 'marketing', 'accounting', 'management', 'analytics', 'business', 'logistics', 'financial accounting', 'supply chain'],
+    arts: ['literature', 'history', 'art', 'music', 'anthropology', 'culture', 'performing', 'visual art', 'creative writing'],
+    health: ['public health', 'epidemiology', 'clinical', 'nursing', 'health economics', 'healthcare', 'biology', 'biomedical', 'biotechnology', 'global health'],
+    linguistic: ['linguistics', 'language', 'syntax', 'phonetics', 'sociolinguistics', 'translation']
+  };
+
+  let matchedKeywords = [];
+  let fieldScores = { computing: 0, biomedical: 0, engineering: 0, business: 0, arts: 0, health: 0, linguistic: 0 };
+
+  for (const field in keywordMap) {
+    keywordMap[field].forEach(keyword => {
+      const lowered = keyword.toLowerCase();
+      const escaped = escapeRegExp(lowered);
+      // Use lookaround to ensure we match whole words/phrases but allow non-word chars like C++
+      const pattern = `(?<!\\w)${escaped}(?!\\w)`;
+      try {
+        const regex = new RegExp(pattern, 'g');
+        const matches = textCorpus.match(regex);
+        if (matches && matches.length > 0) {
+          const capitalizedKeyword = keyword.charAt(0).toUpperCase() + keyword.slice(1);
+          if (!matchedKeywords.includes(capitalizedKeyword)) matchedKeywords.push(capitalizedKeyword);
+          fieldScores[field] += matches.length;
+        }
+      } catch (err) {
+        // Regex failed (older engines) - fallback to simple substring match
+        if (textCorpus.indexOf(lowered) !== -1) {
+          const capitalizedKeyword = keyword.charAt(0).toUpperCase() + keyword.slice(1);
+          if (!matchedKeywords.includes(capitalizedKeyword)) matchedKeywords.push(capitalizedKeyword);
+          fieldScores[field] += 1;
+        }
+      }
+    });
+  }
+
+  // New: Add scores from the structured technicalSkills question
+  if (state.technicalSkills) {
+    const skill = state.technicalSkills.toLowerCase();
+    if (skill.includes('programming') || skill.includes('data analysis')) {
+      fieldScores.computing += 3; // Strong signal
+    } else if (skill.includes('lab techniques')) {
+      fieldScores.biomedical += 3;
+    } else if (skill.includes('engineering software')) {
+      fieldScores.engineering += 3;
+    } else if (skill.includes('statistical software')) {
+      fieldScores.business += 2; // Can also be social sciences, but often business
+    } else if (skill.includes('qualitative software')) {
+      fieldScores.arts += 2; // Maps to social sciences/humanities
+    }
+  }
+
+  // Determine the top field (raw)
+  let topField = null;
+  let maxScore = 0;
+  for (const field in fieldScores) {
+    if (fieldScores[field] > maxScore) {
+      maxScore = fieldScores[field];
+      topField = field;
+    }
+  }
+
+  // Merge related disciplines for clearer dashboard categories
+  const mergedFieldScores = {
+    'Engineering & Computing': (fieldScores.computing || 0) + (fieldScores.engineering || 0),
+    'Biomedical & Biotech': (fieldScores.biomedical || 0),
+    'Health Sciences': (fieldScores.health || 0),
+    'Arts & Culture': (fieldScores.arts || 0),
+    'Linguistic': (fieldScores.linguistic || 0),
+    'Business': (fieldScores.business || 0),
+    'Other': 0
+  };
+
+  // Normalize small counts to avoid an empty chart
+  const mergedTotal = Object.values(mergedFieldScores).reduce((a,b)=>a+b,0);
+  if(mergedTotal === 0){
+    mergedFieldScores['Other'] = 1; // show an empty-but-present category
+  }
+
+  return {
+    matchedKeywords,
+    topField,
+    keywordCount: matchedKeywords.length,
+    fieldScores,
+    mergedFieldScores
+  };
+}
+
+/* =========================================================
+   INFERENCE ENGINE
+========================================================= */
+
+function inferPathway(){
+
+  const stage = state.academicStage;
+  const pathwayDisplayNames = {
+    engineering: "Engineering",
+    medicine: "Medicine / Health Sciences",
+    computing: "Computing",
+    business: "Business",
+    arts: "Arts"
+  };
+
+  let primary = "Interdisciplinary Pathway"; // Default
+  let alternative = null;
+  let scores = {}; // Initialize scores object
+  let primaryKey = null;
+
+  if (stage === "Secondary School") {
+    const parsed = parseSubjects(state.subjects);
+    scores = computePathwayScores(parsed); // Assign computed scores
+    const ranked = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+
+    primaryKey = ranked[0][0];
+    const alternativeKey = ranked[1] ? ranked[1][0] : null;
+
+    primary = pathwayDisplayNames[primaryKey] || primaryKey.charAt(0).toUpperCase() + primaryKey.slice(1);
+    alternative = alternativeKey ? (pathwayDisplayNames[alternativeKey] || alternativeKey.charAt(0).toUpperCase() + alternativeKey.slice(1)) : null;
+
+  } else if (stage === "Undergraduate") {
+    primary = "Academic Optimization Pathway";
+    primaryKey = "optimization";
+    if (state.specialization?.includes("Software")) {
+      primary = "Advanced Computing Specialization";
+      primaryKey = "computing";
+    }
+    if (state.specialization?.includes("Finance")) {
+      primary = "Business & Financial Systems";
+      primaryKey = "business";
+    }
+    alternative = "General Academic Development";
+    scores = {}; 
+  } else if (stage === "Graduate") {
+    const researchAnalysis = analyzeResearchProfile();
+    const specializationInput = (state.targetSpecialization || '').toLowerCase();
+    const disciplineInput = (state.undergraduateDiscipline || '').toLowerCase();
+    const goalInput = (state.graduateGoal || '').toLowerCase();
+
+    const fieldMapping = [
+      { keys: ['data science', 'artificial intelligence', 'ai', 'machine learning'], label: 'Data Science & AI' },
+      { keys: ['business analytics'], label: 'Business Analytics' },
+      { keys: ['finance', 'bank', 'economics', 'accounting'], label: 'Finance & Economics' },
+      { keys: ['engineering', 'systems', 'mechanical', 'electrical', 'civil', 'chemical'], label: 'Engineering Systems' },
+      { keys: ['health', 'biomedical', 'medical', 'pharma', 'clinical'], label: 'Biomedical' },
+      { keys: ['public policy', 'policy', 'development', 'governance'], label: 'Policy & Development' },
+      { keys: ['management', 'strategy', 'business'], label: 'Management' },
+      { keys: ['interdisciplinary', 'analytics'], label: 'Interdisciplinary Research' },
+    ];
+
+    let fieldLabel = 'Graduate Research';
+    const candidateText = `${specializationInput} ${disciplineInput} ${goalInput}`.trim();
+    for (const item of fieldMapping) {
+      if (item.keys.some(key => candidateText.includes(key))) {
+        fieldLabel = item.label;
+        break;
+      }
+    }
+
+    if (fieldLabel === 'Graduate Research' && researchAnalysis.topField) {
+      const fieldName = researchAnalysis.topField.charAt(0).toUpperCase() + researchAnalysis.topField.slice(1);
+      fieldLabel = fieldName;
+    }
+    if (fieldLabel === 'Graduate Research' && researchAnalysis.matchedKeywords.length > 0) {
+      fieldLabel = researchAnalysis.matchedKeywords[0];
+    }
+
+    const prefix = goalInput.includes('phd')
+      ? 'Doctoral'
+      : goalInput.includes("master")
+      ? "MSc"
+      : goalInput.includes('career') || goalInput.includes('advancement')
+      ? 'Applied'
+      : 'Advanced';
+
+    primary = `${prefix} ${fieldLabel} Pathway`;
+    primaryKey = fieldLabel.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+
+    alternative = fieldLabel.includes('Research') || fieldLabel === 'Interdisciplinary Research'
+      ? `Applied ${fieldLabel} Pathway`
+      : `Research & Career Pathway in ${fieldLabel}`;
+    scores = {};
+  }
+
+  return {
+    primary,
+    alternative,
+    scores,
+    primaryKey
+  };
+}
+
+/* =========================================================
+   READINESS ENGINE
+========================================================= */
+
+function calculateReadiness(){
+  const stage = state.academicStage;
+  const scoringProfile = getScoringProfile();
+
+  const weights = {
+    academic: 0.35,
+    experience: 0.25,
+    career: 0.15,
+    admission: 0.15,
+    financial: 0.10
+  };
+
+  const componentScores = {
+    academic: scoringProfile.componentBaselines.academic,
+    experience: scoringProfile.componentBaselines.experience,
+    career: scoringProfile.componentBaselines.career,
+    admission: scoringProfile.componentBaselines.admission,
+    financial: scoringProfile.componentBaselines.financial
+  };
+
+  /* ===========================
+     ACADEMIC PERFORMANCE (0-100)
+  =========================== */
+
+  const academicSignals = [];
+
+  const normalizedCGPA = normalizeCGPAto100(state.cgpa);
+  if(normalizedCGPA !== null) academicSignals.push(normalizedCGPA);
+
+  if(state.subjects){
+    const parsed = parseSubjects(state.subjects);
+    if(parsed.length > 0){
+      const average = parsed.reduce((a,b)=>a+b.score,0) / parsed.length;
+      academicSignals.push(average);
+    }
+  }
+
+  if(stage === "Graduate" && state.courseworkHistory){
+    const courses = parseCoursework(state.courseworkHistory);
+    if(courses.length > 0){
+      const avgCourseScore = courses.reduce((a,b)=>a+b.score,0) / courses.length;
+      academicSignals.push(avgCourseScore);
+    }
+  }
+
+  if(academicSignals.length > 0){
+    componentScores.academic = clamp(
+      academicSignals.reduce((a,b)=>a+b,0) / academicSignals.length,
+      0,
+      100
+    );
+  }
+
+  if(stage === "Graduate" && state.academicAchievements && state.academicAchievements.length > 20){
+    componentScores.academic = clamp(componentScores.academic + 5, 0, 100);
+  }
+
+  /* ===========================
+     EXPERIENCE & EXPOSURE (0-100)
+  =========================== */
+
+  let experienceScore = 0;
+
+  if(stage === "Graduate"){
+    const researchAnalysis = analyzeResearchProfile();
+
+    if(state.publicationCount){
+      if(state.publicationCount.includes("More than 5")) experienceScore += 34;
+      else if(state.publicationCount.includes("3 - 5")) experienceScore += 28;
+      else if(state.publicationCount.includes("1 - 2")) experienceScore += 18;
+      else experienceScore += 4;
+    }
+
+    if(state.firstAuthor){
+      if(state.firstAuthor.includes("multiple")) experienceScore += 20;
+      else if(state.firstAuthor.includes("at least")) experienceScore += 14;
+      else if(state.firstAuthor.includes("co-author")) experienceScore += 7;
+    }
+
+    if(state.manuscriptsInPrep){
+      if(state.manuscriptsInPrep.includes("draft")) experienceScore += 14;
+      else if(state.manuscriptsInPrep.includes("data analysis")) experienceScore += 9;
+      else if(state.manuscriptsInPrep.includes("Planned")) experienceScore += 5;
+    }
+
+    if(state.thesisExperience){
+      if(state.thesisExperience.includes("extensive")) experienceScore += 18;
+      else if(state.thesisExperience.includes("moderate")) experienceScore += 12;
+      else if(state.thesisExperience.includes("Minimal")) experienceScore += 6;
+    }
+
+    if(state.technicalSkills){
+      if(state.technicalSkills.includes("Programming") || state.technicalSkills.includes("Data Analysis")) experienceScore += 14;
+      else if(state.technicalSkills.includes("Lab") || state.technicalSkills.includes("Engineering")) experienceScore += 12;
+      else if(state.technicalSkills.includes("Statistical") || state.technicalSkills.includes("Qualitative")) experienceScore += 8;
+    }
+
+    experienceScore += clamp((researchAnalysis.keywordCount || 0) * 2, 0, 10);
+
+    if(state.timeAvailability){
+      const availability = parseFloat(state.timeAvailability);
+      if(!isNaN(availability)) experienceScore += clamp(availability / 5, 0, 10);
+    }
+  }
+
+  if(stage === "Undergraduate"){
+    if(state.internshipExperience){
+      if(state.internshipExperience.includes("substantial")) experienceScore += 45;
+      else if(state.internshipExperience.includes("limited")) experienceScore += 30;
+      else if(state.internshipExperience.includes("seeking")) experienceScore += 18;
+      else experienceScore += 8;
+    }
+    if(state.specialization) experienceScore += 15;
+    if(state.support && state.support.includes("Research")) experienceScore += 8;
+  }
+
+  if(stage === "Secondary School"){
+    if(state.extracurricularStrength){
+      if(state.extracurricularStrength.includes("No major")) experienceScore += 8;
+      else if(state.extracurricularStrength.includes("Leadership") || state.extracurricularStrength.includes("competitions")) experienceScore += 35;
+      else experienceScore += 24;
+    }
+    if(state.learningStyle) experienceScore += 10;
+  }
+
+  componentScores.experience = clamp(experienceScore, 0, 100);
+
+  /* ===========================
+     CAREER DIRECTION (0-100)
+  =========================== */
+
+  let careerScore = scoringProfile.componentBaselines.career;
+
+  if(state.careerCertainty){
+    if(state.careerCertainty.includes("Very")) careerScore += 45;
+    else if(state.careerCertainty.includes("Moderately")) careerScore += 30;
+    else if(state.careerCertainty.includes("Still")) careerScore += 15;
+    else careerScore += 8;
+  }
+
+  if(stage === "Secondary School"){
+    if(state.career && !state.career.includes("Undecided")) careerScore += 20;
+  }
+
+  if(stage === "Graduate" && state.careerGoal){
+    careerScore += 15;
+  }
+
+  componentScores.career = clamp(careerScore, 0, 100);
+
+  /* ===========================
+     ADMISSION READINESS (0-100)
+  =========================== */
+
+  let admissionScore = scoringProfile.componentBaselines.admission;
+
+  if(state.admissionConfidence){
+    if(state.admissionConfidence.includes("Very")) admissionScore += 45;
+    else if(state.admissionConfidence.includes("Somewhat")) admissionScore += 30;
+    else if(state.admissionConfidence.includes("Unsure")) admissionScore += 15;
+    else admissionScore += 8;
+  }
+
+  if(stage === "Graduate" && state.advisorPreference){
+    if(state.advisorPreference.includes("specific supervisor")) admissionScore += 20;
+    else if(state.advisorPreference.includes("Research area")) admissionScore += 12;
+    else admissionScore += 6;
+  }
+
+  componentScores.admission = clamp(admissionScore, 0, 100);
+
+  /* ===========================
+     FINANCIAL READINESS (0-100)
+  =========================== */
+
+  let financialScore = scoringProfile.componentBaselines.financial + 5;
+
+  if(stage === "Secondary School" && state.financialConstraint){
+    if(state.financialConstraint.includes("not a major")) financialScore = 90;
+    else if(state.financialConstraint.includes("moderate")) financialScore = 72;
+    else if(state.financialConstraint.includes("partial")) financialScore = 55;
+    else financialScore = 40;
+  }
+
+  if(stage === "Graduate" && state.funding){
+    if(state.funding.includes("not required")) financialScore = 90;
+    else if(state.funding.includes("self-fund partially")) financialScore = 72;
+    else if(state.funding.includes("partial")) financialScore = 58;
+    else financialScore = 42;
+  }
+
+  componentScores.financial = clamp(financialScore, 0, 100);
+
+  /* ===========================
+     WEIGHTED SCORE ON 20-POINT SCALE
+  =========================== */
+
+  const weightedPercent = (
+    componentScores.academic * weights.academic +
+    componentScores.experience * weights.experience +
+    componentScores.career * weights.career +
+    componentScores.admission * weights.admission +
+    componentScores.financial * weights.financial
+  );
+
+  const completeness = computeReadinessCoverage(stage);
+  const strictnessMultiplier = clamp(
+    scoringProfile.strictnessMin + (completeness * (1 - scoringProfile.strictnessMin)),
+    scoringProfile.strictnessMin,
+    1
+  );
+  const adjustedPercent = weightedPercent * strictnessMultiplier;
+
+  const finalScore = clamp((adjustedPercent / 100) * 20, 1, 20);
+
+  let label = "";
+  if(finalScore >= scoringProfile.thresholds.high) label = "High Readiness";
+  else if(finalScore >= scoringProfile.thresholds.moderate) label = "Moderate Readiness";
+  else if(finalScore >= scoringProfile.thresholds.developing) label = "Developing Readiness";
+  else label = "Needs Significant Improvement";
+
+  return {
+    score: Math.round(finalScore),
+    label,
+    componentScores,
+    weightedPercent: Math.round(weightedPercent),
+    adjustedPercent: Math.round(adjustedPercent),
+    completeness: Math.round(completeness * 100),
+    strictnessMultiplier,
+    scoringMode: scoringProfile.mode,
+    thresholds: scoringProfile.thresholds
+  };
+
+}
+
+/* =========================================================
+   STRENGTH ENGINE
+========================================================= */
+
+function generateStrengths(){
+
+  const strengths = [];
+  const stage = state.academicStage;
+
+  /* ===========================
+     SUBJECT PERFORMANCE ANALYSIS
+  =========================== */
+
+  if(state.subjects){
+
+    const parsed = parseSubjects(state.subjects);
+    const topSubjects = parsed.filter(s => s.score >= 75);
+    const avgScore = parsed.reduce((a,b)=>a+b.score,0) / parsed.length;
+
+    if(avgScore >= 85){
+      strengths.push("An exceptional academic performance across core subjects");
+    } else if(topSubjects.length >= 3){
+      strengths.push(`strong performance in ${topSubjects.length} key subjects (avg: ${Math.round(avgScore)}%)`);
+    }
+
+  }
+/* ===========================
+     RESEARCH & ACADEMIC EXPOSURE
+  =========================== */
+
+  if (stage === "Graduate") {
+    // New: Coursework analysis
+    if (state.courseworkHistory) {
+      const courses = parseCoursework(state.courseworkHistory);
+      const highPerforming = courses.filter(c => c.score >= 90);
+      if (highPerforming.length >= 2) {
+        strengths.push(`excellent performance in advanced coursework (${highPerforming.map(c => c.course).slice(0,2).join(', ')})`);
+      }
+    }
+  }
+
+  if (stage === "Graduate") {
+    const researchAnalysis = analyzeResearchProfile();
+    if (researchAnalysis.keywordCount >= 1) {
+      const topSkills = researchAnalysis.matchedKeywords.slice(0, 3).join(', ');
+      strengths.push(`demonstrated technical focus in ${topSkills}`);
+    }
+
+    // Evidence-based academic indicators
+    if(state.cgpa) {
+      let cgpaVal = parseFloat(state.cgpa);
+      if (cgpaVal > 5.0) cgpaVal = (cgpaVal / 20) * 5.0; // Normalize
+      if (cgpaVal >= 3.5) {
+        strengths.push(`strong academic performance (CGPA: ${state.cgpa})`);
+      }
+    }
+    if(state.publicationCount && !state.publicationCount.includes('None')){
+      strengths.push(`an emerging research profile with ${state.publicationCount}`);
+    }
+    if(state.firstAuthor && state.firstAuthor.toLowerCase().includes('yes')){
+      strengths.push('first-author contributions');
+    }
+    if(state.manuscriptsInPrep){
+      if(state.manuscriptsInPrep.includes("draft ready")){
+        strengths.push('a proactive research pipeline with manuscripts nearing submission');
+      } else if (state.manuscriptsInPrep.includes("data analysis underway")){
+        strengths.push('ongoing research activity with data analysis in progress');
+      }
+    }
+    if(state.technicalSkills && !state.technicalSkills.includes('None')){
+      strengths.push(`primary technical expertise in ${state.technicalSkills}`);
+    }
+  }
+
+  /* ===========================
+     PRACTICAL EXPERIENCE
+  =========================== */
+
+  if(state.internshipExperience && state.academicStage === "Undergraduate"){
+
+    if(state.internshipExperience.includes("substantial")){
+      strengths.push("strong industry experience that positions you competitively");
+    } else if(state.internshipExperience.includes("limited")){
+      strengths.push("emerging practical industry experience");
+    }
+
+  }
+
+  /* ===========================
+     CAREER DIRECTION
+  =========================== */
+
+  if(state.careerCertainty && state.careerCertainty.includes("Very")){
+    strengths.push("a clear and aligned career trajectory with defined objectives");
+  }
+
+  /* ===========================
+     PUBLICATION RECORD
+  =========================== */
+
+  if(state.academicStage === "Graduate" && state.publicationCount){
+    if(state.publicationCount.includes("More than 5")){
+      strengths.push("a robust publication record demonstrating research credibility");
+    } else if(state.publicationCount.includes("3")){
+      strengths.push("an established academic publication presence");
+    }
+  }
+
+  /* ===========================
+     ADMISSION CONFIDENCE
+  =========================== */
+
+  if(state.admissionConfidence && state.admissionConfidence.includes("Very")){
+    strengths.push("high self-assessed admission readiness and preparedness");
+  }
+
+  /* ===========================
+     FINANCIAL STABILITY
+  =========================== */
+
+  if((state.funding || state.financialConstraint) && 
+     ((state.funding && state.funding.includes("not required")) ||
+      (state.financialConstraint && state.financialConstraint.includes("not a major")) || 
+      (state.financialConstraint && state.financialConstraint.includes("moderate")))){
+    strengths.push("Financial capacity that provides stability for focused academic commitment");
+  }
+
+  /* ===========================
+     EXTRACURRICULAR ENGAGEMENT
+  =========================== */
+
+  if(state.academicStage === "Secondary School" && state.extracurricularStrength && 
+     !state.extracurricularStrength.includes("No major")){
+    if(state.extracurricularStrength.includes("Leadership") || state.extracurricularStrength.includes("competitions")){
+      strengths.push("Strong extracurricular engagement demonstrating leadership initiative");
+    }
+  }
+
+  return strengths;
+
+}
+
+/* =========================================================
+   RISK FACTOR ENGINE
+========================================================= */
+
+function generateRiskFactors(){
+
+  const risks = [];
+  const stage = state.academicStage;
+
+  /* ===========================
+     ACADEMIC PERFORMANCE GAPS
+  =========================== */
+
+  if(state.cgpa){
+    let cgpaVal = parseFloat(state.cgpa);
+    if (cgpaVal > 5.0) cgpaVal = (cgpaVal / 20) * 5.0; // Normalize
+    
+    if(cgpaVal < 3.0){
+      risks.push(`an academic record (CGPA: ${state.cgpa}) that requires strategic strengthening for competitive programs`);
+    }
+  }
+
+  /* ===========================
+     SUBJECT-LEVEL VULNERABILITIES
+  =========================== */
+
+  if(state.subjects){
+    const parsed = parseSubjects(state.subjects);
+    const critical = parsed.filter(s => s.score < 50);
+    const weak = parsed.filter(s => s.score < 60);
+    
+    if(critical.length >= 1){
+      risks.push(`critical gaps in ${critical.map(s => s.subject).join(", ")}`);
+    } else if(weak.length >= 2){
+      risks.push(`inconsistent performance in ${weak.length} subjects`);
+    }
+  }
+
+  /* ===========================
+     CAREER & DIRECTION UNCERTAINTY
+  =========================== */
+
+  if(state.careerCertainty){
+    if(state.careerCertainty.includes("Completely") || state.careerCertainty.includes("unsure")){
+      risks.push("an undefined career trajectory");
+    }
+  }
+
+  if(state.academicStage === "Secondary School" && state.career && state.career.includes("Undecided")){
+    risks.push("early-stage career exploration");
+  }
+
+  /* ===========================
+     PRACTICAL EXPERIENCE GAPS
+  =========================== */
+
+  if(state.academicStage === "Undergraduate" || state.academicStage === "Graduate"){
+    if(state.internshipExperience && state.internshipExperience.includes("No experience yet")){
+      risks.push("an absence of practical experience");
+    }
+  }
+
+  /* ===========================
+     RESEARCH PUBLICATION GAPS (Graduate)
+  =========================== */
+
+  if(stage === "Graduate"){
+    if(state.publicationCount && state.publicationCount.includes("None")){
+      risks.push("a lack of a publication record");
+    }
+    if(!state.advisorPreference || state.advisorPreference.includes("Still exploring")){
+      risks.push("pending advisor/supervisor identification");
+    }
+    const specialization = (state.targetSpecialization || '').toLowerCase();
+    const researchInterest = (state.researchInterest || '').toLowerCase();
+    if(specialization && specialization.includes('finance') && researchInterest && !researchInterest.includes('finance') && !researchInterest.includes('economics')){
+      risks.push("an unclear research direction relative to your finance specialization");
+    }
+  }
+
+  /* ===========================
+     FUNDING CONSTRAINTS
+  =========================== */
+
+  if(stage === "Secondary School" && state.financialConstraint && state.financialConstraint.includes("Require full")){
+    risks.push("a dependency on a full scholarship");
+  }
+
+  if(stage === "Graduate" && state.funding && state.funding.includes("Require full")){
+    risks.push("a full funding requirement");
+  }
+
+  /* ===========================
+     ADMISSION READINESS GAPS
+  =========================== */
+
+  if(state.admissionConfidence && (state.admissionConfidence.includes("Unsure") || state.admissionConfidence.includes("significant"))){
+    risks.push("expressed admission uncertainty");
+  }
+
+  return risks;
+
+}
+
+/* =========================================================
+   INFERENCE CONFIDENCE
+========================================================= */
+
+function calculateInferenceConfidence(){
+
+  let confidence = 45;
+  const stage = state.academicStage;
+  const dataPoints = [];
+
+  if(state.subjects) { confidence += 12; dataPoints.push("subjects"); }
+  if(state.cgpa) { confidence += 12; dataPoints.push("performance"); }
+  if(state.career) { confidence += 10; dataPoints.push("career"); }
+  if(state.learningStyle) { confidence += 8; dataPoints.push("style"); }
+  
+  if(stage === "Graduate"){
+    if(state.targetSpecialization) { confidence += 10; dataPoints.push("specialization"); }
+    if(state.publicationCount) { confidence += 8; dataPoints.push("publications"); }
+    if(state.advisorPreference) { confidence += 7; dataPoints.push("advisor"); }
+    if(state.firstAuthor) { confidence += 5; dataPoints.push("firstAuthor"); }
+  }
+  
+  if(stage === "Undergraduate"){
+    if(state.internshipExperience) { confidence += 10; dataPoints.push("experience"); }
+    if(state.specialization) { confidence += 8; dataPoints.push("specialization"); }
+  }
+  
+  if(stage === "Secondary School"){
+    if(state.extracurricularStrength) { confidence += 8; dataPoints.push("activities"); }
+    if(state.studyDestination) { confidence += 6; dataPoints.push("destination"); }
+  }
+
+  return Math.min(confidence, 99);
+
+}
+
+/* =========================================================
+   NARRATIVE SUMMARY
+========================================================= */
+
+function generateNarrativeSummary(
+  pathway,
+  readiness,
+  strengths,
+  risks
+){
+
+  const stage = state.academicStage;
+  let summary = "";
+
+  // 1. Opening Statement
+  const stageRoleMap = {
+    "Secondary School": "learner",
+    "Undergraduate": "student",
+    "Graduate": "candidate"
+  };
+  const stageRole = stageRoleMap[stage] || "student";
+  const article = /^[aeiou]/i.test(stage) ? "an" : "a";
+  summary += `<p>Based on your profile as ${article} <strong>${stage} ${stageRole}</strong>, this analysis provides a personalized assessment of your academic pathway and readiness for your next decision point.</p>`;
+
+  const profileSignals = buildProfileSignals();
+  if(profileSignals.length > 0){
+    summary += `<p><strong class="summary-title">Personalized Profile Signals:</strong> Your current responses highlight ${formatList(profileSignals)}. These signals were prioritized when generating the pathway and readiness recommendations below.</p>`;
+  }
+
+  // 2. Detailed Pathway Analysis
+  let pathwayText;
+  if (pathway.primary.startsWith("MSc")) {
+      pathwayText = `a <strong>Master's programme in ${pathway.primary.replace('MSc ', '').replace(' Pathway', '')}</strong>`;
+  } else if (pathway.primary.startsWith("Doctoral")) {
+      pathwayText = `a <strong>Doctoral programme in ${pathway.primary.replace('Doctoral ', '').replace(' Pathway', '')}</strong>`;
+  } else {
+      // Fields that are simple nouns (e.g., "Engineering") should not be preceded by "the".
+      // More descriptive pathway names (e.g., "Engineering Pathway") should.
+      const simpleFields = ["Engineering", "Medicine / Health Sciences", "Computing", "Business", "Arts"];
+      if (simpleFields.includes(pathway.primary)) {
+        pathwayText = `<strong>${pathway.primary}</strong>`;
+      } else {
+        pathwayText = `the <strong>${pathway.primary}</strong>`;
+      }
+  }
+  let pathwayIntro = `<p><strong class="summary-title">Pathway Analysis:</strong> Your inputs suggest an optimal alignment with ${pathwayText}. `;
+  if (stage === "Secondary School" && state.subjects) {
+    const parsedSubjects = parseSubjects(state.subjects);
+    
+    const relevantSubjectsMap = {
+        engineering: ["math", "physics", "further math", "technical drawing"],
+        medicine: ["biology", "chemistry", "physics"],
+        computing: ["computer", "ict", "math", "physics"],
+        business: ["economics", "commerce", "accounting", "business studies"],
+        arts: ["literature", "government", "history", "art", "music"],
+    };
+
+    const pathwayKey = pathway.primaryKey;
+    const relevantKeywords = relevantSubjectsMap[pathwayKey] || [];
+    
+    let relevantTopSubjects = [];
+    if (relevantKeywords.length > 0 && parsedSubjects.length > 0) {
+        relevantTopSubjects = parsedSubjects
+            .filter(s => relevantKeywords.some(keyword => s.subject.includes(keyword)))
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 3);
+    }
+
+    if (relevantTopSubjects.length > 0) {
+        const subjectNames = relevantTopSubjects.map(s => `<strong>${s.subject.charAt(0).toUpperCase() + s.subject.slice(1)}</strong>`);
+        let subjectText;
+        if (subjectNames.length === 1) {
+            subjectText = subjectNames[0];
+        } else if (subjectNames.length === 2) {
+            subjectText = subjectNames.join(' and ');
+        } else {
+            const last = subjectNames.pop();
+            subjectText = `${subjectNames.join(', ')}, and ${last}`;
+        }
+        const verb = relevantTopSubjects.length > 1 ? 'are key indicators' : 'is a key indicator';
+        pathwayIntro += `Your high performance in ${subjectText} ${verb} for this path.`;
+    } else {
+        pathwayIntro += `This is based on an analysis of your academic strengths and interests.`;
+    }
+  } else if (stage === "Graduate") {
+    const specialization = state.targetSpecialization || 'your chosen field';
+    const background = state.undergraduateDiscipline || 'your undergraduate background';
+    const techSkill = state.technicalSkills || 'none';
+
+    let narrative = `Your profile presents an interesting intersection between <strong>${background}</strong> and a desired focus on <strong>${specialization}</strong>. `;
+
+    const isBusinessBg = /business|marketing|economic|finance|management|accounting/.test(background.toLowerCase());
+    const hasQuantSkill = /programming|data analysis|statistical|matlab|spss|stata/.test(techSkill.toLowerCase());
+    const isDataPathway = /data science|analytics|computing|a\.?i\.?/.test(pathway.primary.toLowerCase());
+
+    if (isBusinessBg && hasQuantSkill && isDataPathway) {
+        narrative += `Your expertise in <strong>${techSkill}</strong> provides a crucial bridge, suggesting a strong aptitude for quantitative analysis within a business context. This makes the recommendation of ${pathwayText} a logical and powerful next step. This program will build upon your existing statistical skills, equipping you with advanced computational techniques to translate data into actionable business strategy.`;
+    } else if (isDataPathway) {
+        narrative += `The recommended pathway, ${pathwayText}, aligns with the growing demand for data-driven expertise. It represents a strategic move to build a highly sought-after computational skillset that complements your background in <strong>${background}</strong>.`;
+    } else {
+        narrative += `The recommended pathway, ${pathwayText}, is a direct reflection of your stated interests and academic signals, providing a clear route towards your graduate goals.`;
+    }
+    pathwayIntro = `<p><strong class="summary-title">Pathway Analysis:</strong> ${narrative}`;
+  } else if (stage === "Undergraduate" && state.specialization) {
+    pathwayIntro += `Your stated interest in "${state.specialization}" is a primary driver for this recommendation, which focuses on advanced skill acquisition.`;
+  }
+  
+  if (pathway.alternative) {
+    pathwayIntro += ` An alternative to explore that still aligns with your profile is <strong>${pathway.alternative}</strong>.`;
+  }
+  pathwayIntro += `</p>`;
+  summary += pathwayIntro;
+
+  // 3. Readiness Deep Dive
+  const readinessContext = {
+    "High Readiness": "Comprehensive preparation across academic and practical dimensions positions you for immediate competitive pursuit.",
+    "Moderate Readiness": "Solid foundation exists; targeted intervention on identified gaps will enhance competitive positioning.",
+    "Developing Readiness": "Emerging foundation requires continued development and strategic support to enhance competitive positioning.",
+    "Needs Significant Improvement": "Structured support plan required to develop competitive academic profile."
+  };
+  summary += `<p><strong class="summary-title">Readiness Deep Dive (${readiness.score}/20):</strong> Your current profile is assessed as <strong>${readiness.label}</strong>. ${readinessContext[readiness.label]} `;
+
+  const { componentScores } = readiness;
+  const positives = [];
+  const negatives = [];
+
+  if (componentScores.academic >= 70) positives.push('strong academic performance');
+  else if (componentScores.academic < 45) negatives.push('improve academic performance');
+
+  if (componentScores.experience >= 65) {
+    positives.push(stage === "Secondary School" ? 'meaningful practical exposure and extracurricular engagement' : 'meaningful research or practical experience');
+  } else if (componentScores.experience < 40) {
+    negatives.push(stage === "Secondary School" ? 'build more pathway-relevant practical exposure' : 'build more hands-on research experience');
+  }
+
+  if (componentScores.career >= 65) positives.push('clear career direction');
+  else if (componentScores.career < 40) negatives.push('clarify career goals and focus');
+
+  // Evidence summary (explicit inputs)
+  const evidence = [];
+  if(state.cgpa) evidence.push(`CGPA: ${state.cgpa}`);
+  if(state.publicationCount && !state.publicationCount.includes('None')) evidence.push(`Publications: ${state.publicationCount}`);
+  if(state.firstAuthor) evidence.push(`first-author: ${state.firstAuthor}`);
+  if(state.manuscriptsInPrep) evidence.push(`manuscripts: ${state.manuscriptsInPrep}`);
+  if(state.timeAvailability) evidence.push(`time availability: ${state.timeAvailability}%`);
+
+  if(positives.length > 0) summary += `<br><strong>Strength signals:</strong> ${positives.join(', ')}.`;
+  if(negatives.length > 0) summary += ` <strong>Areas to improve:</strong> ${negatives.join(', ')}.`;
+  if(evidence.length > 0) summary += ` <br><strong>Evidence:</strong> ${evidence.join('; ')}.`;
+  if(readiness.completeness !== undefined){
+    summary += ` <br><strong>Scoring strictness:</strong> ${readiness.completeness}% profile completeness with a strictness factor of ${readiness.strictnessMultiplier.toFixed(2)}.`;
+  }
+  summary += `</p>`;
+
+  // 4. Strategic Profile Analysis (Strengths & Risks)
+  if (strengths.length > 0) {
+    // Present strengths as explicit evidence items to avoid vague repetition
+    const listed = strengths.map(s => `<li>${s}</li>`).join('');
+    summary += `<p><strong class="summary-title">Key Competitive Advantages:</strong></p><ul>${listed}</ul>`;
+  }
+
+  if (risks.length > 0) {
+    const isSingleOpportunity = risks.length === 1;
+    const opportunityTerm = risks.length > 1 ? "several key areas for growth" : "a key area for growth";
+    const opportunityHeading = isSingleOpportunity ? "Strategic Development Opportunity" : "Strategic Development Opportunities";
+    const focusSentence = isSingleOpportunity
+      ? "Focusing on this area will substantially boost your competitiveness."
+      : "Focusing on these areas will substantially boost your competitiveness.";
+
+    const cleanedRisks = risks.map(r => withoutTerminalPunctuation(r));
+
+    // Create a natural-language list of risks
+    let formattedRisks;
+    if (cleanedRisks.length === 1) {
+      formattedRisks = `<em>${cleanedRisks[0]}</em>`;
+    } else if (cleanedRisks.length === 2) {
+      formattedRisks = `<em>${cleanedRisks[0]}</em> and <em>${cleanedRisks[1]}</em>`;
+    } else {
+      formattedRisks = cleanedRisks.slice(0, cleanedRisks.length - 1).map(r => `<em>${r}</em>`).join(', ') + `, and <em>${cleanedRisks[cleanedRisks.length - 1]}</em>`;
+    }
+
+    summary += `<p><strong class="summary-title">${opportunityHeading}:</strong> To maximize your potential, we've identified ${opportunityTerm}: ${formattedRisks}. ${focusSentence}</p>`;
+  }
+
+
+  // 5. Personalized Trajectory
+  let trajectory = `<p><strong class="summary-title">Your Personalized Trajectory:</strong> `;
+  if (stage === "Secondary School") {
+    trajectory += `For a secondary-school learner, your immediate goal is to build a coherent profile that connects your academic outcomes with activities aligned to <strong>${pathway.primary}</strong>. Prioritize subject mastery, admission planning, and practical exposure relevant to your target course area.`;
+  } else if (stage === "Undergraduate") {
+    trajectory += `At this crucial development stage, your focus should be on translating academic knowledge into practical skills. Actively seek internships and projects related to the <strong>${pathway.primary}</strong> to build a competitive portfolio for either industry employment or graduate studies.`;
+  } else if (stage === "Graduate") {
+    let trajectoryFocus = "deepening your research footprint by publishing your work and strategically networking with potential supervisors";
+    if (risks.length > 0) {
+        if (risks[0].includes("publication")) {
+            trajectoryFocus = "securing your first peer-reviewed publication, as this is a critical step to becoming a competitive candidate";
+        } else if (risks[0].includes("advisor") || risks[0].includes("supervisor")) {
+            trajectoryFocus = "strategically identifying and contacting potential supervisors, as a strong alignment is key to a successful graduate journey";
+        } else if (risks[0].includes("GPA")) {
+            trajectoryFocus = `strengthening your academic record. For a quantitative field like <strong>${pathway.primary.replace('MSc ', '').replace(' Pathway', '')}</strong>, consider certified courses in foundational mathematics (e.g., Linear Algebra, Calculus) and advanced statistics to demonstrate your quantitative readiness. A pre-master's program is also an excellent option`;
+        }
+    } else if (strengths.length > 0) {
+        if (strengths[0].includes("publication")) {
+            trajectoryFocus = "leveraging your strong publication record to attract top-tier supervisors and secure competitive funding";
+        } else if (strengths[0].includes("research portfolio")) {
+            trajectoryFocus = "refining your extensive research into publishable articles and presenting at conferences to build your academic network";
+        }
+    }
+    trajectory += `Your path towards a successful graduate career in <strong>${pathway.primary}</strong> depends on ${trajectoryFocus}.`;
+  }
+  trajectory += `</p>`;
+  summary += trajectory;
+
+  return summary;
+
+}
+
+/* =========================================================
+   RESOURCES
+========================================================= */
+
+function generateResources(){
+
+  const resources = [];
+
+  resources.push(
+  '<a href="https://adaptroute.com/guide-2-managing-academic-workload/" target="_blank" rel="noopener noreferrer">Academic counseling sessions</a>' 
+  );
+
+  resources.push(
+    "Scholarship application guidance"
+  );
+
+  resources.push(
+    "Career development workshops"
+  );
+
+  if(state.academicStage === "Graduate"){
+
+    resources.push(
+      '<a href="https://adaptroute.com/research-superviosr-matching/" target="_blank" rel="noopener noreferrer">Research supervisor matching</a>' 
+    );
+
+  }
+
+  return resources;
+}
+
+/* =========================================================
+   GENERATE ANALYSIS
+========================================================= */
+
+function generateAnalysis(){
+  try {
+    const stage = state.academicStage;
+
+      const pathwayResult =
+        inferPathway();
+
+      // For graduate users, run the research profile analysis and attach it for dashboard charts
+      let researchAnalysis = null;
+      if (stage === 'Graduate') {
+        researchAnalysis = analyzeResearchProfile();
+      }
+
+    const readiness =
+      calculateReadiness();
+
+    const strengths =
+      normalizeStatements(generateStrengths());
+
+    const risks =
+      normalizeStatements(generateRiskFactors());
+
+    const recommendations =
+      enforceStageRecommendationGuardrails(
+        stage,
+        normalizeStatements(generateRecommendations(
+          pathwayResult.primary
+        ))
+      );
+
+    const resources =
+      generateResources();
+
+    const confidence =
+      calculateInferenceConfidence();
+    const confidenceDrivers =
+      buildConfidenceExplanation();
+
+    currentProfile = {
+
+      state: { ...state },
+
+      userType: stage,
+
+      primaryPathway:
+        pathwayResult.primary,
+
+      alternativePathway:
+        pathwayResult.alternative,
+
+
+      primaryPathwayKey:
+        pathwayResult.primaryKey,
+
+      pathwayScores:
+        pathwayResult.scores,
+
+      researchAnalysis,
+
+      readiness,
+
+      scoringMode: state.scoringMode,
+
+      strengths,
+
+      risks,
+
+      recommendations,
+
+      resources,
+
+      confidence,
+
+      confidenceDrivers,
+
+      summary:
+        generateNarrativeSummary(
+          pathwayResult, // Contains primary, alternative, and primaryKey
+          readiness,
+          strengths,
+          risks
+        )
+
+    };
+
+    renderResults();
+  } catch (e) {
+    console.error('generateAnalysis error', e);
+    const contentEl = document.getElementById('content');
+    if (contentEl) {
+      contentEl.innerHTML = '<div class="card"><div class="card-title">Error</div><div style="color:#f87171">An error occurred while generating the analysis: ' + e.message + '</div></div>';
+    }
+  }
+
+}
+
+/* =========================================================
+   RECOMMENDATIONS
+========================================================= */
+
+function generateRecommendations(pathway){
+
+  const recommendations = [];
+  const stage = state.academicStage;
+
+  /* ===========================
+     STAGE-SPECIFIC PRIMARY GOAL
+  =========================== */
+
+  if(stage === "Secondary School"){
+    recommendations.push(`Target universities with strong ${pathway} programs and review admission requirements plus prerequisite subjects.`);
+    if(state.admissionConfidence && state.admissionConfidence.includes("Need significant")){
+      recommendations.push("Engage with secondary education advisors for university selection and application strategy.");
+    }
+  } else if(stage === "Undergraduate"){
+    recommendations.push(`Pursue specialized coursework and electives that deepen ${pathway} competency.`);
+    if(state.transferIntent && state.transferIntent.includes("transfer")){
+      recommendations.push("Develop detailed academic transfer strategy addressing target institution requirements.");
+    }
+  } else if(stage === "Graduate"){
+    recommendations.push(`Identify and connect with research groups in ${pathway}—send inquiry emails to potential supervisors.`);
+    if(state.publicationCount && state.publicationCount.includes("None")){
+      recommendations.push("Prioritize publication strategy: submit current research findings to peer-reviewed venues.");
+    }
+  }
+
+  /* ===========================
+     CONTEXTUAL FUNDING STRATEGY
+  =========================== */
+
+  const needsFunding = 
+    (stage === "Secondary School" && state.financialConstraint && !state.financialConstraint.includes("not a major") && !state.financialConstraint.includes("moderate")) ||
+    (stage === "Undergraduate" && state.financialConstraint && state.financialConstraint.includes("partial")) ||
+    (stage === "Undergraduate" && state.support && state.support.includes("Scholarship")) ||
+    (stage === "Graduate" && state.funding && state.funding.includes("require"));
+
+  if(needsFunding){
+    recommendations.push("Systematically research scholarship databases—identify external funding aligned with your profile and pathway.");
+  }
+
+  /* ===========================
+     EXPERIENCE GAP MITIGATION
+  =========================== */
+
+  if(stage === "Undergraduate"){
+    if(state.internshipExperience && state.internshipExperience.includes("No experience yet")){
+      recommendations.push("Secure internship placement before graduation—prioritize positions in pathway-aligned organizations.");
+    }
+  } else if(stage === "Graduate"){
+    if(state.advisorPreference && state.advisorPreference.includes("Still exploring")){
+      recommendations.push("Research and identify 3-5 potential thesis advisors—initiate exploratory conversations with research groups.");
+    }
+  }
+
+  /* ===========================
+     SKILL REMEDIATION (if needed)
+  =========================== */
+
+  if(state.subjects){
+    const parsed = parseSubjects(state.subjects);
+    const weak = parsed.filter(s => s.score < 60);
+    if(weak.length > 0){
+      recommendations.push(`Focus remedial effort on ${weak.map(s => s.subject).join(" and ")}—these directly impact competitiveness.`);
+    }
+  }
+
+  /* ===========================
+     PROFILE STRENGTHENING
+  =========================== */
+
+  if(stage === "Secondary School"){
+    if(state.extracurricularStrength && state.extracurricularStrength.includes("No major")){
+      recommendations.push("Initiate strategic extracurricular participation—science clubs or tech competitions strengthen profile.");
+    }
+  }
+
+  return recommendations;
+}
+
+/* =========================================================
+   RESULTS UI
+========================================================= */
+
+function renderResults(){
+  document.getElementById("app").innerHTML = `
+    <div id="status">Adaptive academic intelligence system active.</div>
+    <div id="progress"><div id="progress-fill" style="width: 100%;"></div></div>
+    <div id="step">Analysis Complete</div>
+    <div id="question">Your Adaptive Academic Pathway</div>
+    <div id="content">
+      <div class="card">
+        <div class="card-title">Summary Analysis</div>
+        <div>${currentProfile.summary}</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Recommended Pathway</div>
+        <div>${currentProfile.primaryPathway}</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Readiness Assessment</div>
+        <div>
+          Level: ${currentProfile.readiness.label}<br>
+          Score: ${currentProfile.readiness.score}/20<br>
+          Scoring Mode: ${currentProfile.readiness.scoringMode || currentProfile.scoringMode || "Strict"}
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 12px; margin-bottom: 4px;">
+          <button class="primary" style="background: ${state.scoringMode === "Strict" ? "#1d4ed8" : "#334155"};" onclick="setScoringMode('Strict')">
+            Strict
+          </button>
+          <button class="primary" style="background: ${state.scoringMode === "Standard" ? "#1d4ed8" : "#334155"};" onclick="setScoringMode('Standard')">
+            Standard
+          </button>
+        </div>
+        <div style="margin-top: 20px; position: relative; height:300px">
+          <canvas id="readinessChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Key Strengths</div>
+        ${
+          currentProfile.strengths.length > 0
+            ? currentProfile.strengths
+                .map(item => `<div class="recommendation">• ${item}</div>`)
+                .join("")
+            : "<div>No specific strengths identified from current data.</div>"
+        }
+      </div>
+
+      <div class="card">
+        <div class="card-title">Potential Risk Factors</div>
+        ${
+          currentProfile.risks.length > 0
+            ? currentProfile.risks
+                .map(item => `<div class="recommendation">• ${item}</div>`)
+                .join("")
+            : "<div>No significant risk factors identified.</div>"
+        }
+      </div>
+
+      <div class="card">
+        <div class="card-title">Recommendations</div>
+        ${
+          currentProfile.recommendations
+            .map(item => `<div class="recommendation">• ${item}</div>`)
+            .join("")
+        }
+      </div>
+
+      <div class="card">
+        <div class="card-title">Available Resources</div>
+        ${
+          currentProfile.resources
+            .map(item => `<div class="recommendation">• ${item}</div>`)
+            .join("")
+        }
+      </div>
+
+      <div class="card">
+        <div class="card-title">Inference Confidence</div>
+        <div>${currentProfile.confidence}% confidence in pathway recommendations.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Confidence Explanation</div>
+        ${
+          currentProfile.confidenceDrivers && currentProfile.confidenceDrivers.length > 0
+            ? currentProfile.confidenceDrivers
+                .map(item => `<div class="recommendation">• ${item}</div>`)
+                .join("")
+            : "<div>No confidence drivers available for this profile.</div>"
+        }
+      </div>
+
+      <div class="card">
+        <div class="card-title">Support</div>
+        <div>
+          For personalized guidance and support, please contact our academic advisors:<br>
+          Email: support@adaptroute.com<br>
+          Phone: +351 920307867 <br>
+          Office Hours: Monday-Friday, 9 AM - 5 PM <br>
+          <br>
+          Our team provides one-on-one counseling, application reviews, and career planning support.
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="primary" onclick="saveProfile()">
+          Save Profile
+        </button>
+        <button class="primary" onclick="downloadPDF()">
+          Download PDF
+        </button>
+        <button class="primary" onclick="restart()">
+          Restart
+        </button>
+      </div>
+
+      <div class="result-actions" style="margin-top: 10px;">
+        <button class="primary" style="background: #374151;" onclick="loadProfile()">
+          Load Last Profile
+        </button>
+        <button class="primary" style="background: #0f766e;" onclick="renderDashboard()">
+          View Dashboard
+        </button>
+      </div>
+    </div>
+  `;
+
+  renderReadinessChart();
+
+}
+
+/* =========================================================
+   DASHBOARD UI
+========================================================= */
+
+function renderDashboard() {
+    if (!currentProfile) {
+        alert("No profile is currently loaded. Please complete an assessment first.");
+        return;
+    }
+
+    const app = document.getElementById("app");
+    app.innerHTML = `
+        <h1 style="color: #ffffff;">${currentProfile.userType} Profile Dashboard</h1>
+        <div id="status">A visual analysis of your profile data.</div>
+        
+        <div class="card">
+            <div class="card-title">Readiness Assessment</div>
+            <p>Overall Score: ${currentProfile.readiness.score} / 20 (${currentProfile.readiness.label})</p>
+            <div style="position: relative; height:300px">
+                <canvas id="readinessChart"></canvas>
+            </div>
+        </div>
+    `;
+
+    let chartsToRender = [{ render: () => renderReadinessChart(), condition: true }];
+
+    // Pathway Alignment Scores Chart (for Secondary School)
+    if (currentProfile.userType === 'Secondary School' && currentProfile.pathwayScores && Object.keys(currentProfile.pathwayScores).length > 0) {
+        const pathwayCard = document.createElement('div');
+        pathwayCard.className = 'card';
+        pathwayCard.innerHTML = `
+            <div class="card-title">Pathway Alignment Scores</div>
+            <div style="position: relative; height:300px">
+                <canvas id="pathwayChart"></canvas>
+            </div>
+        `;
+        app.appendChild(pathwayCard);
+        chartsToRender.push({
+            render: () => {
+                const pathwayData = Object.entries(currentProfile.pathwayScores)
+                    .sort(([, a], [, b]) => b - a)
+                    .reduce((r, [k, v]) => ({ ...r, [k.charAt(0).toUpperCase() + k.slice(1)]: v }), {});
+                renderBarChart('pathwayChart', 'Pathway Scores', pathwayData);
+            },
+            condition: true
+        });
+    }
+    
+    // Subject Performance Chart (for Secondary School)
+    if (currentProfile.userType === 'Secondary School' && state.subjects) {
+        const subjectCard = document.createElement('div');
+        subjectCard.className = 'card';
+        subjectCard.innerHTML = `
+            <div class="card-title">Subject Performance Analysis</div>
+            <div style="position: relative; height:300px">
+                <canvas id="subjectChart"></canvas>
+            </div>
+        `;
+        app.appendChild(subjectCard);
+        chartsToRender.push({
+            render: () => {
+                const subjectData = parseSubjects(state.subjects).reduce((acc, s) => {
+                    acc[s.subject.charAt(0).toUpperCase() + s.subject.slice(1)] = s.score;
+                    return acc;
+                }, {});
+                renderBarChart('subjectChart', 'Subject Scores', subjectData);
+            },
+            condition: true
+        });
+    }
+
+              // Research Competency Chart (for Graduate)
+              if (currentProfile.userType === 'Graduate' && currentProfile.researchAnalysis && (currentProfile.researchAnalysis.mergedFieldScores || currentProfile.researchAnalysis.fieldScores)) {
+                const researchCard = document.createElement('div');
+                researchCard.className = 'card';
+                researchCard.innerHTML = `
+                  <div class="card-title">Research Competency</div>
+                  <div style="position: relative; height:300px">
+                    <canvas id="researchCompetencyChart"></canvas>
+                  </div>
+                `;
+                app.appendChild(researchCard);
+                chartsToRender.push({
+                  render: () => {
+                    const fs = currentProfile.researchAnalysis.mergedFieldScores || currentProfile.researchAnalysis.fieldScores || {};
+                    // Use category labels as provided
+                    const data = {};
+                    Object.keys(fs).forEach(k => {
+                      data[k] = fs[k];
+                    });
+                    renderBarChart('researchCompetencyChart', 'Research Competencies', data);
+                  },
+                  condition: true
+                });
+              }
+
+    const actions = document.createElement('div');
+    actions.className = 'result-actions';
+    actions.innerHTML = `<button class="primary" onclick="renderResults()">Back to Summary Report</button>`;
+    app.appendChild(actions);
+
+    // Render all charts after a short delay to ensure DOM is updated
+    setTimeout(() => {
+        chartsToRender.forEach(chart => {
+            if (chart.condition) chart.render();
+        });
+    }, 100);
+}
+
+function renderBarChart(canvasId, label, data) {
+    const ctx = document.getElementById(canvasId)?.getContext('2d');
+    if (!ctx) return;
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(data),
+            datasets: [{ label: label, data: Object.values(data), backgroundColor: 'rgba(37, 99, 235, 0.7)' }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: '#f8fafc', stepSize: 1 }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }, x: { ticks: { color: '#f8fafc' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } } } }
+    });
+}
+
+
+/* =========================================================
+   RESULTS UI: RENDER CHART
+========================================================= */
+
+function renderReadinessChart() {
+  const ctx = document.getElementById('readinessChart')?.getContext('2d');
+  if (!ctx) return;
+
+  if (readinessChartInstance) {
+    readinessChartInstance.destroy();
+  }
+
+  const scores = currentProfile.readiness.componentScores;
+
+  // Define max possible scores for normalization to a 0-10 scale
+  const maxScores = {
+    academic: 100,
+    experience: 100,
+    career: 100,
+    admission: 100,
+    financial: 100
+  };
+
+  const labels = Object.keys(scores).map(key => key.charAt(0).toUpperCase() + key.slice(1));
+  
+  const data = Object.keys(scores).map(key => {
+    const score = scores[key] || 0;
+    const max = maxScores[key] || 10;
+    // Normalize to a 0-10 scale and cap at 10
+    return Math.min((score / max) * 10, 10);
+  });
+
+  readinessChartInstance = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Readiness Profile',
+        data: data,
+        fill: true,
+        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+        borderColor: 'rgb(37, 99, 235)',
+        pointBackgroundColor: 'rgb(37, 99, 235)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgb(37, 99, 235)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: '#f8fafc' // Legend text color
+          }
+        }
+      },
+      scales: {
+        r: {
+          angleLines: { color: 'rgba(255, 255, 255, 0.2)' },
+          grid: { color: 'rgba(255, 255, 255, 0.2)' },
+          pointLabels: {
+            color: '#f8fafc',
+            font: { size: 12 }
+          },
+          ticks: { color: '#f8fafc', backdropColor: 'transparent' },
+          suggestedMin: 0,
+          suggestedMax: 10
+        }
+      }
+    }
+  });
+}
+/* =========================================================
+   PROFILE MANAGEMENT
+========================================================= */
+
+function saveProfile() {
+  if (currentProfile) {
+    let profiles = JSON.parse(localStorage.getItem('adaptivePathwayProfiles')) || [];
+    profiles.push(currentProfile);
+    localStorage.setItem('adaptivePathwayProfiles', JSON.stringify(profiles));
+    alert(`Profile saved. ${profiles.length} total profiles are now stored for the dashboard.`);
+  }
+}
+
+function loadProfile() {
+  const profiles = JSON.parse(localStorage.getItem('adaptivePathwayProfiles')) || [];
+  if (profiles.length > 0) {
+    // Load the most recent profile
+    currentProfile = profiles[profiles.length - 1];
+    // Restore the state from the saved profile to ensure dashboard and other functions work correctly
+    if (currentProfile.state) {
+      Object.keys(state).forEach(key => delete state[key]); // Clear old state
+      Object.assign(state, currentProfile.state);
+      if(!state.scoringMode) state.scoringMode = "Strict";
+    } else {
+      state.academicStage = currentProfile.userType; // Backwards compatibility
+      state.scoringMode = currentProfile.scoringMode || "Strict";
+    }
+    renderResults();
+  } else {
+    alert('No saved profiles found in this browser.');
+  }
+}
+
+/* =========================================================
+   PDF UTILITY: STRIP HTML TAGS
+========================================================= */
+
+function stripHTMLTags(html){
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.textContent || div.innerText || '';
+}
+
+/* =========================================================
+   NOTIFICATION ENGINE (WEBHOOK)
+========================================================= */
+
+/* =========================================================
+   CLEAN PDF ENGINE
+========================================================= */
+
+function downloadPDF(){
+
+  const { jsPDF } = window.jspdf;
+
+  const doc = new jsPDF();
+  const pageHeight = doc.internal.pageSize.height;
+  const pageWidth = doc.internal.pageSize.width;
+  const margin = 15;
+  const columnGap = 5;
+  const sectionSpacing = 6;
+  const contentWidth = pageWidth - margin * 2;
+  let y = 20;
+
+  /* ===========================
+     HEADER
+  =========================== */
+
+  doc.setFillColor(37,99,235);
+  doc.rect(0,0,pageWidth,35,"F");
+
+  pdfTemplate.logoBase64 = "iVBORw0KGgoAAAANSUhEUgAAAZsAAAGdCAYAAADEwd7lAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAKIYSURBVHhe7f0HnNxXee+PPzuzva+kVe+9S5Z774CNG9gYbDAGDKEkpJDchNxfcv/88ktu7k2DQAjdFBtjTAfTbNyxjbt616rXlbTa3mf+533me6TReHrbmd3nLX1fM/PdKd/6fM5Tzjklx/evD0pgWCQYkEzo7e2Xvr4+qaqqlMrKCm9tfhgaHJKOzm77u9XVld7a/HH06HGpq62R6poqb03+OHHilFRUlEtNdZWU+Eq8tfmho6NLhoeHpaG+Tnx+n7c2P/T3D8ipUx3S3DxefHneb2jZvU/mzpnpvcofgUBQWltPSGNjvT3v+SQwHJD2jk7x+/1SX1/rrc0PQbPf3T299ryPH9/orc0fPd290tnVLZMmTfDW5I+enj5jW/ulvq5GSstKvbX5gd/t7e0ztrXS2PZEdt27D4P2v3t6mpIT254L+o60SEnXCW9VegwMDsrAwJCUl5dJeZ4PyLC5CTggZea3K8ySb061d0qVEbp83/zQ2dUjZaWl5rfLpKQkv0a3xxxzjF+1aWDk2+APmgYGxqfBGL187zccPXZcJk3Mv+EJBoPG4HfZxkVZnu8zzjXnnHPNOc8n7Hd//6AMDg2Zhl21tzZ/IHK9xvA2NtR5a/JH/4DZb7PQkPfnuVE3YO6zAfPb5eWlxq7Ht61BIzbmEpGhYIkMBn0yGCg563nJyecfCpY9+U3xt7zmfURRFEVRkgcPZtgIS1/AJ91DfukcNstQqXSYpdO+LpX8yqSiKIoyqjhLaBAZIyyIjBOaDvvar2KjKIqipEekRxMSmbBHIzRWcFRsFEVRlHQIF5quCKEJ92hCrzWMpiiKoqQIQkPyvzdcaE7naUJCY3M1YcKjYqMoiqIkjROacI8mFCoLCQ05m0ih4VHFRlEURUmK00IzHBKaSEEJD52Fezi8VrFRFEVREnKW0AxHFxQeTwuQ+7v3WsVGURRFicvZQoOIICDmMcyTOUtgEKCIHE5qnTpLjDb5/GZBo/Lfa1tRFEXJP+EejQ2fuf40gz7pGBBpHyg5LTjWs/E8H/vavI/+NymJTUl1g5Q0z5aS+mZPcBRFUZTRTMAIzaBZqDzrNaLRa0SH5z3m+anOXjl44LAcaT0l7f1ylsCEC02/+UxKYuObvlT8l98j/kUXi5Tnf8BLRVEUJb8EjdAMm0eGauY54jMc5HWJHN3dIi//+lHZ9Orrcrxz4CyhIXSGICE0fDY1sZmzRkpv+KT4V15vxCb/IxwriqIohcOB7VvlyYe/J688+7y0tvedLhYglIZHM2A8IDefgMbCFEVRlLTAyyGX4zyZWEIDKjaKoihKWjBcTW/AbyvU4gkNqNgoiqIoaRESG8+ziSM0oGKjKIqipAWiQnUaYkMxQCyhARUbRVEUJS3cqM89gfhCAyo2iqIoSlowDTQiM5hAaEDFRlESETC3UWA44yVovoclELEEGQtEUYoQBCbU5yYxvmCQt+nVrihRGRqQQOseCRzZmfHSe6hFTu7fI4f37ZeW3Qdll1l27z0kPT293o8pyuil5NAT9wdrfv+glO1Z662KjXbqVMYawda9MviLfxPp7fLWpAdjS+3srZad3ZWys6dadvVW2dEFy8pK5a473yKXXLQq9EZFKSI2bNopX7v/p/L4ky9LV1ePtzY6Jft++7Vg3QsPScW+dd6q2KjYKGON4bW/kYEvf1hkIDPvg7LQVzrq5eVTdfJKe4Ns7Kqx6xGbT/zRHfKpP32v+Hw6uK1SXKQiNr6KinLx+zV1oyhvIhiUwO7XRQb7vBXpQZDajZZL5zeeO8jZbNy8S3p6NZSmjG58ZWVlUsLUAYqinI3xZgJ713svMiMkNCHBoeObIxAIyp49h6S1tc1boyijE1UZRYlBsPO4BI+2WA8nExgp94xnY8TGPDqC5rtbT5yS3XsOe2sUZXSiYqMoMUBogqeOeq/Spz/giY239AXPvu16e/tl/cadVngUZbSiYqMo0SBfQ4VmhoUByAdhs3DPho5w4ZC32bR5l/T1DXhrFGX0oWKjKNEY7A0VByTVXS0+tijACA1T5fIYic3b7DskJ062e2sUZfShYqMoUQh2nJDAoe0h1yQDTudrvCW8OMBB+Ozo0ZPSsueQt0ZRRh8qNooShWDrHgm2k6/JTG0YqNCKjA2hhabJjUZPT59s3LRL8zbKqEXFRlEiIV+zb4NIf/xOasnAXB9OaHhkJIFoDA3T32an9Pdr3kYZnajYKEokg/2hfI0dNzB98FHwalyuhuexYIzCnbsOyomTHd4aRRldqNgoSgTB7jYJHtxqPZxMsbkaT2ii5WschM+OtZ6UffuPeGsUZXShYqMoEQSP7ZZAG8n6zMTGFgd4QsMSK18D6FpPd69s0P42yihFxUZRzsLL1/R1e6/Tpz/oO+3R8NgXiD/Q5uDQkGzYvEsGBoa8NYoyelCxUZRwhgYluHet0ZzM+9d0Dxux8YoDeAzEKA5w0N9mV8sBOdWueRtl9KFioyhhkK8JHNjKs9CKNOHTp0No3mMiCJ8dPnxc9u3TvI0y+lCxUZQwmCwtcPIglt9bkz7Oo3GhtEQgNl3dvbJpy27N2yijDhUbRTlNUIL7Nor0dXqv02coEAqhdXqCE684IJyhoSE7KKfmbZTRhoqNojiGBiWw+w2R4cwNfQ9iQwjNW2J15oyEvM2OnXulvT1zwVOUQkLFRlE8gr0dEji0jWehFWli8zVhQsOSLITPjhw7KQcPtXprFGV0oGKjKB7BEwck2JadfE1oiBqzJFkc4EBsOjt7ZPO23d4aRRkdqNgoikdw/2YJdp/yXqUPJc4ITKcRGgoDesxjKgwMDNrOnfS7UZTRgoqNosDwUGg8tOFBb0X69HvFAbYzp3mkc2cqBIYDsmPnfunoyLxjqaIUCio2imKw+Zr9m8yTbHTmPBNC43nkzJyJCASDNmdz4GDmU1IrSqGgYqMohuDJgxI8sc888VakydnFAaX2MVXI21CNtn2H2R5FGSWo2CiKIXhomwR7yNdkoTggTGh4TIdQ3maXDA0Ne2sUpbhRsVGU4WEJtLxu+9lkiu3MicgMhbybnuH0brHhQEC2bt8jnV2ZT+CmKIWAio0y5gn2dUpg/0bzJPN8DZ05qUJjwjTKn5kWOh3o3Ene5pD2t1FGCSo2ypjH5muOZ56vAefRuMd0IW/T1tYh23bs9dYoSnHjCw34l4W7TFGKlODh7RLsOsGz0IoMCBcaHjOhn7zNpl0yPKx5G6X48Q0ODlqXXVHGJIFhCe5dLzLY761In4CUSHdJlQyU1VqxoVAgE4Ztf5t90tXd561RlOLFN2haT4FA5rFqRSlGbL4GsbEefmb0BXwy3DhdamcvtmLTn2BmzkRwX+7bf0QOHznurVGU4sVXVlYqPl9mN4WiFCvBU0clcIxxyDIXm+5AqZTPWirT11wqvYEy842Z3VeEuE+c7JCdO/d7axSlePGVV1QYscnM3VeUYiV4ZGcoX5MFz6bbCEzd/FUybdkqCVTUeGszo6+vX9Zv2mlLoRWlmNFqNGXsEgxIcM8bIoOZ50TwYnr9tVI/Z6mMnz5TasY1e3/JDMZJ27J1t3R393prFKU4UbFRxi79PRLYt4HkiLcifQYDJTJQN0nqp82WuqZGmTZntveXzAgYQTxw8Ji0trZ5axSlOFGxUcYswY5WCRzNTr6mN+AX/5QFUt00XsrLK2T58oVZyYVSKXr8xClp2X3QW6MoxYmKjTJmCRzZLsH2Y1nJ13QFy6R63ioptTnQElm2ZI5UVVV6f82M3t5+Wb9xp3ZRUIoaFRtlbGLzNetEBrOTCyFf0zB/hZSU4M2UyJw502Ric1PojxlCp87NW3dLT4/2t1GKFxUbZWzS3yuBvRus6GQKM3MO1DZL3dRQnga9aZ7QKHNmT7OvMwWPZs/ew3Ks9aS3RlGKDxUbZUwS7DwuwSM7shJC6wv6RSbOlarG8d4akcrKClmxbJ74rKeTGXTubD3eJrv3HvLWKErxoWKjjEkCR1sk2N6aFbGhM2fVnJVSVnkmR+P3+WTl8vlWdLIBeRtKoDVvoxQrKjbK2MPma9ZKcCA7c8UwHhqdOUuMwIQzd840GTeu3nuVGcNDw7JpS4vt5KkoxYiKjTL2GOiXwN51xr3JfDRl/IyB2olSP3N+aIUHhQITJjTJnFlTvTWZwQgCLS0H5fjJdm+NohQXKjbKmIPhaQJHd1oPJ1MGgz4JTpwnVeMmeGvOUFNdafM2oQq1zAiabT3aelL27NG8jVKcqNgoY47gsRYJnjqCBffWpE/PsF/KZy6Vsooqb80Z/H6/rFixQMrLy7w16cOmUvq8cfMu81zzNkrxoWKjjC2Mh2CHqOnLTr6mRyqlNkq+BnBoFsybIeOzlLcZGhqWLVv2SH//oLdGUYoHFRtlbDHYb4sDJDDkrciM/ppmqZu50Ht1NoTPJk4cJ7NnZilvMxyQlj0H5WRbh7dGUYoHFRtlTBHsapPA4e1ZCaExM2dg4jypHj/RW/NmyNssXpydQTkJnx05ekL2an8bpQhRsVHGFMHWPXbCtGyITV/AL2WzVkh5Vey5a0pL/bJyxQJhksJMQWy6untk45YWzdsoRYeKjTJ2MAY6sH+jBPu6eBFalwHdUinVc1dIiT/25IOE0hYtmCWNjXXemswYGhySTZt3ad5GKTpUbJSxw/CABMjXDA14KzKjr2qc1MxY4L2KDmIzZdJ4mT1rircmM+hvs6vloJw61emtUZTiQMVGGTMEu05J4HB2xkPjG4bGz5bq5sQiUltXLcuWzPVeZQbD1RxrbbMTqilKMaFio4wZgq17Jdh2MCtiMxjwSenMZVJekzg8VlbqlxXL5mctb9PZ2S1btu3WvI1SVKjYKGOGwMHNIj2UDWdupHukQqrnrxFfnHyNg1Aa/W0aGmq9NZnRPzAoGzbulMHB7JRvK0o+ULFRxgbDg6Hx0MxjNuitbJKaWYu8V/FBbKZObZaZ0yd7azKDydS279wvp9o1b6MUDyo2ypgg2N0uwQNbSHp4azJjqGmmVE1IPunfUF8rixfN8l5lBnmbI0ePa95GKSpUbJQxQfD4vlC+JgshNDpzlkxfIuU1yQ9DQ75m1YoFtt9NpoTyNj2yfcc+b42iFD4qNsqYIHBgk/FuTmGpvTXp0ydlUjnvHPGVJp/w9/lKZNHCWVJfF7sDaCr0DwzIps0tMjSkeRulOFCxUUY/w0MS2Ls+a/1resubpGb2Eu9VspTI1CnNMsUs2WB4KCDbdu6V9vZub42iFDYqNsqoJ9jTIcFD28yT7ORrBppmSvWkmd6r5CgpEWloqJOFC1L7XCzo3HnoUKscOKR5G6U48A0ODkogSzehohQiwZMHJHhiX1ZCaEHjocjUxVJe1+itSZ6K8lJZvWKB+P2Zt/HI25w61SXbtu/11ihKYePr6+uTwHDm0+MqSqESPLhVgl0nsyI2gyVlUj5nZUr5GkdJiU+WLpkjdVnK2/T1D8jmLbvtPDeKUuj4ysrKxBdl4idFGRUEhiSw5w2jElnK15TVS9XsZd6r1CCUNmP6JJmWrbyNaSTu2LXPVqYpSqHjq6ysNGKTeTmmohQiwd4OCdC/Jkuh4v6GaVI9Jb35aejc2dRYL/PnTffWZEYgEJD9B47KoSOt3hpFKVzUpVFGNcFTRyR4Yn/WxCY4dYlU1Dd5r1KnvLxMli+bl5W8DZ0729o6ZMdO7W+jFD4qNsqoJnBouwS7ThiVyEJnzhK/lM09R3xl5d6a1KG/DSNA19RUe2syg7zNxk27bEhNUQoZFRtl9BIYlsCedSKD/d6KzOgvrZOqWUu9V+lBKG3WzCkyaeI4b01mUBywbcc+6eru9dYoSmGiYqOMXvq6JLh/kxWdbNBXN1kqJ2c2vhliM66pQRbOn+GtyQxCaQcPHpNjx056axSlMFGxUUYtNl/Tujtr+ZqhifOktLpehgYH7fD+6SwDZiGUtnTxXPuYKRQJnGhrl10tB7w1ilKYqNgoo5bAkZ0S7DielXwN39ATLJf9m9bKhldfl+dfXCe/T2Phcy++tEF6evuy1uWgt7dfNmzaZYVHUQqVkpPPPxQse/Kb4m95zVsVG9+cNVJ6wyfFv/J6kfIqb62iFCDG8A7+/F9k6FefNy5J5jmb/oBP1pcvlpbK+bKlu0Z2dGeQ4DfK1d7ZJTt3HciKQDCi9NVXnCuf/ddPZW2gT0VJhg2bdsrX7v+pPP7ky9LVFb+/l4qNMjrp7ZSBr31chtc/lpWczcnBUnmlvUFebq8zj/Wy1QhOoYCHxEygX/rC35rH7PThUZRkSEVsNIymjEqC7cckcHRXVkJo0DXkl65ht6Q+VE0uCZK3Odkue/Yc8tYoSuGhYqOMSkL5mmNYYm9NZiAwIcEJPRYSNp/U2yebt7Zo3kYpWFRslNGHMbiBfetF+rPT92Q4WCLdzqsxQtNjHguNocEhOyhnT0+ft0ZRCgsVG2X0MdArwQMbTZM/O/1regM+L3wWWgaN+BQaQ8MB2b33kBw/0e6tUZTCQsVGGXUEO09I4EiL9XCygfNo3GN2skDZhfltjh8/JS17DnprFKWwULFRRh2Bozsl2H4UC+ytyYxwoSGcVoggNoTQNm0hb1OIcqiMdVRslNEF+Zq960X6mJs/c6PLN7jwWTfFAQUqNjA4NCRbt+6R3r7sjAWnKNlExUYZXQz2hcQmMOStyIyBgE+6wzybPvO6UBkeGpaW3QflxIlT3hpFKRxUbJRRBdM/B+lfk6V8TfcwxQGu7NkvgQIsDnAEgkFpPd4me/ce9tYoSuGgYqOMKoLHdtsOnVnL13ihM/dYyJC36e7pk83b9mjeRik4VGyU0YMxtoH9G0X6u3gRWpch4cUBhS42MDgwKJu3tEh//4C3RlEKAxUbZfQw1B+aLG1o0FuRGXTmDBeaQuzMGcnQ8LDs3nNI2k51eGsUpTBQsVFGDfSvCR7eLtmaLM125gzzbAYDhZuvcRA+O3a8TfbtP+KtUZTCQMVGGTUEj++1E6blKoRWDFkQ8jadnd2yeetu+1xRCgUVG2XUEDiwVYJ9XVhcb00GlJRIf3WzBBsmS2njJKka1ywTJ447vUwKe56N1+PHN4rfn50wXX//oGzc3CIDA9kJJypKNtD5bJTRwdCADDzw1zL84sNZydkEy6vl2Mo75VDpZNnfV2mX3sAZMSCgFi5pmb0OSl/fgDz2uz/IkaMnvHXpg2itXrlQvvyFv5HJkyZ4axUl++jkacqYI3jqqAz8970SaHk9KzmbwfFzRD74RQkYz6Zv2Gc7cwatROSGnp5e+b///oA89eyr3pr0KTFe2bSpzfL5f/8rOf/cpd5aRck+OnmaMuaw+ZqTh8yT7HTmHJq8WGpmL5XGabNk8swZMnv2NJkze2rOlgXzZ8rqVQvsrJuZEsrb9Mi27eaYaN5GKRBUbJRRQeDAZgn2tGNpvTUZYDwDmb1afBX5894JfS1fNl+qqiq8NZlBP5uNm3bJwGB2hu1RlEzxDQ0OmvtTZ/dTipihQQns22DzNlmhrFJKZ62UEl/++tX4fCUyZ9YUmTC+0VuTGfS32dlyQNrb6eCqKCOPr39gQHQqWaWYCfacymr/mmD9RCmbMjeUxc8bJTJ+XKPMmzPNe50ZgeGAHD16Qg4ePOatUZSRxef3l9qEoqIUK8ET+yV4fL95kqV8zcQFUtY40TzL333BLVhdXWlDadm4HxmUs72jS7bt2OutUZTsU5LCPeKrKC/LSlJSUUaKwMGtEuw+lZ18jbl5AjNWir+y2nudP0rL/LJ86VyprCz31mQG5dSbNrfIoOZtlALAV2KFRj0bpUgZHvTGQ8vShGFlFeKfvTqv+RqHuRll7pxpWcvbMJnajp375FR7p7dGUUYOdWmUoibY2yHBQ9uylq+RumYpm7bAe5FfCJ9NmNAkc2ZN9dZkBrnYQ0eOy2GzKMpIo2KjFDXBtsMSPHkga/ma4UnzQ/maEchj8pM11ZWydMnc7ORtAkFbjbZj135vjaKMHCo2SlETPLTdzs6Zrf415Gt8lTXeivxTWuqXlcvnS0VFmbcmM3r7+m3eZmgoS56foqSJio1SvASGQvmawT5vRWaUlFWKj3xNlgbETAeKdcjbjGtq8NZkBiKzY+d+6ezq9tYoysigYqMUL70dEji4OYv5mvFSNnWheTJyBTNEz5qbm2T2rCnemswYHg7IwUPH5PCRzAf4VJRMULFRipZA2xEJtu4lOeGtyYxA82wpbZoUsvgjBLmautpqWbZ0rrcmMygSOHmyw1alKcpIomKjFC3BIzsl2GVa7NkoDjBGPjh9pfiqRi5f4ygrK5WVyxdIRXl2+tuQt2EyNbwcRRkpVGyU4iQwLIF960UGspOvkdJyKZm9Rkp8pd6KkYNx0ubNmS7jxtV7azJjaDDU3ybREPCKkktUbJTipK/LiM0mIzrZ6R1fUjtO/NMWjmgIzUEobeLEJpk9Ozv9bYaMR7Nv/1E5cuykt0ZR8o+KjVKUBNuPSbB1d9byNcHmOVI6bkrBiI3N22Spvw2jupO32dWi/W2UkUPFRilKAozy3JmlfA3VZ/Svqar1Xo88ZeWlVmzKSjMP69EFqae3z/a30byNMlKo2CjFh83XbJDgQK+3IjNKCihf4/D7fDJv7rSs5W0YjJMRoLt7snPMFCVVVGyUoiPY3yOB/ZtEhrM0mnFNk/imLiiIEJqD8NmUyRNk5ozJ3prMGB4elgMHjsrx46e8NYqSX1RslOKDfM2xFuvhZIOS5lniL5B8jQOxqa+rkcWLZntrMoNx0o6faJeW3Qe9NYqSX1RslKIjcHSXBDtaQ8mIbDBjufiqsxOuyiah/jbz7WOmBM2x6u7pk42bd9mOnoqSb1RslOKCfM3+DSI2X5MFsfGXSXAm46EVTr7G4ff7ZMG8GTKuKUt5m4FB2bJtjxUdRck3JSeffyhY9uQ3xd/ymrcqNr45a6T0hk+Kf+X1IuVV3lpFySPDQzL0zLcksOX32cnZlFdIyQ1/IWUzlxVUGA3wRlpb2+QLX35EDh4ynlyGUHTAIJ8f/6M7pLGhcCrvlOJl46Zd8tX7fyKPP/lywk7DKjZKcREMSPD4fgn2tPMitC4TfH4pmThXSiqqrXF3C6Gm8NcQ+TwS8izhCyM4hz+ypApVZHv3H5He3mx4IyVSVVkuM2dOkfIshOYURcVGUeKAUCAmbnGvBwYG5OTJk+am6ZLu7u6zlv7+frsMDg6efh5JTU2NVFVVSW1trdTX19uloaHh9PPq6morPH6/3z46EVKUYkXFRlHCQEwo/XULonLs2DG7nDhxQtra2uTUqVPS3t5uhaa3t9eKSV9fn12cyLAMDQ3ZheeRVFZWSnl5uX1EWCIXhGfKlCkydepUmTx5skyaNEkqKiqs+JSVlanwKEWHio0y5nHCgjB0dHTI7t275dChQ6dFBnFhfWdn52lPBmHJJQhLU1PTWQviM3/+fFmyZIk0NjZKaWmpFR8VHqUYULFRxiSEwpzXgbC0tLRYkTlw4IAcPXrUhsic9xIt55IMLvcSLgYuDBe+nnWJfoP3Om9n+vTpsmDBAlm6dKkVHzwhJzyKUqio2ChjBgy6ExgEZdu2bXbZu3evfY0Xg/eSrLggAJGJ/fBHFw7juQMP6fDhwzZfg3C48Bvhusi8kHvuFgffP378eCs606ZNs6KzatUq+5oQm3o7SiGiYqOMejDaCAzhr82bN8u6detkz549cvDgQevVkHdJFpczQUAIdTU3N9uEPmGturo6+0jSn7AXf0dwnOFHMPjtb3/729Yj+ehHP2q3yy14UizkhRAllxviNbmg8FySg+1AtObMmSOLFi2SNWvW2DBb+O8qSiGgYqOMWhAZPAa8lvXr18vatWttqGzfPiYHSxwew1gjLix8F14R4avzzjvPigzeBUKDl4Jxd48k/ak2i4Tfe/LJJ+Xv/u7vrCh88Ytf9P4S+ltPT48VPkSR525hW48cOWI9MLafkB/75bYLwaHYgO1ZvXq1XHDBBXLZZZdF3YZI+F13HHgMF6hYzxUlHVRslFEHRhNjfPz4cXn++efltddes54M+RgEIx4Ybpf/wFjPnDlTZs2aZQUKsXrnO98pd999t/VgEJZUYLtiiU08+BzhPfaHENyPfvQjeeWVV2TevHnW60FkFi9ebIVw3Lhx9jXPESAXiot8dM9dNZ3zrtz+s/B595yFv7FwbHhEgFSElGRJSWyOPfOdYOUz35bS3W94q2KjYqOMBBhMQlAvv/yy/P73v5ctW7ZYA41hjUW4gXUVX7Nnz7Y5kAkTJljj/cgjj8jPfvYz+cAHPiAf/OAHrcFNFQx8OmITDiL63e9+1+4fwsd2ELZju9lW5+0QaiMXRLk2xQ6IEoLlKupYOFZ8HwLMwmfCBSV8wWvDm5s4ceLpBWFDkNx7nAApSjRSEpv9j389WPf8d6V87zpvVWxUbJR8gqGkhf7666/Lc889Jxs2bLDeTHh+IxLEhfwLfVgWLlxocx14MfRrwXATIsN48h2f+9zn5Cc/+Ynce++98qEPfcga11TJhtggJITREFTnvSAUhNvIPyGshNxaW1ttzoeQHMLiyrXd4nJAycKxch1OyU3xSPEDx2rGjBn2uFGsQAgxXHwUxZGS2Bz83TeCNb9HbNZ6q2KjYqPkAww4hhMD/Mwzz8irr74qO3futAY1FhhOjDQJ9fPPP98KDZ4BS7TEeiGJjfNA8EgIC+7YscPmcchLIS6uqAAPhuOSSxAThAfPjwXPB4+QBfFBxBFzjreipCQ2x599IFjx9LfFv/t1b1VsVGyUXIPRJUSEAX/xxRdtpRktfox6NDB6VIitXLnSJvkpGaaKi/xLvPAPv/PZz35WfvrTn46I2PA5Ql5OVBEYFjwZRIZcDp7LSMMxoQoPrxDhmTt3rlx44YX2OKvoKKmIjc/HDaYxWaUAwPBicL/xjW/I97//fXnppZdsiz6a0GAE8Vio1PqjP/ojue++++S2226Tc845xxrHVPIMsYQsGfhsKp/nvewngorXhjh9+ctflu9973vyq1/9yuZtqFBLRWgiQ1vsu6ueI/cTvrgCCN7D33nN4obacSXgDkQZ4du6davNl+EJfv3rX5dvfvObtriC7cQzy+QYKmMDrUZTRhwMFRVUGLPf/OY38sYbb9jXsQwYrWkS/ldffbUVG0JmJLtTEZhseTbkW5566qmEng37QpiMkBhhQSrPENb9+/enFRpDEPDoEAeS+uSyHIjHDTfcYL0Q8jAOtoH8z5e+9CX7mT/+4z8+XZpNDojCAxZyQ3hXHCMWxCS8GIPjTKiN71+2bJlcfPHFtnKO303nGCrFSyqejf9v7rv9M/7da8XXdthbFZuSpiniW3Ch+CbNM58s89YqSvq4ljNGn8ow+s5glKPhWtzLly+34nDFFVfYPAIt8lSEBjC8eE602BEsPKJIDyFZyK8QSiM/9Pa3v91bewbCZXgyTzzxhPz4xz+2Hg2Cyn6z/4lg3xBYF7bC8CMW7373u+3vEUJ8+umn7d94Lwthr2uuucbmryg6oKQacUAQONb8/W//9m+taPN3cl0UU6xYscIeC44Jx5aCASeU4EQHgUSQ2HeEjueELhE3jmOq50MpTo61tslrb2y1040PDLx5cNpwtLREGTEwwiT+77//ftvPhJZ+NOOL8cJzoTSXljNGEC8iUV4m30SKFfuCx4Co/dd//Zctb8YLwkDjLcSD78JzIdRFrgRBuemmm+zC3xCL22+/Xa6//np7LBBcRBhBQRD4zQceeMCKd6zf4lhyXBEUji25Lr7joosukre97W1yxx132JLwT37yk/KRj3xEzj33XHu8nUcFFC0wggINBcJrjz32mBXWRPunjD1UbJQRgcqyP/zhD/LVr35Vfvvb39rQTXioxkFrnVLcu+66y/aidy38bIpMNr4LA0wfHgf7t2vXLvnWt75ljTBeDSGzaPsYDvuHwGD4EZZPfOIT8ld/9VfysY99zHoyeCqAuJCbArafzyEU5K8QH4z9Cy+8YIfRwYtKxoMKByFyHUkvueQSG5bjkfDZW97yFutVUplGroffJzxIQceDDz5o8zkbN2603k+sUKgy9lCxUfIOOYLHH39cvvOd71jBIW8QaZQwYBgyQjqMN0ZnR4x5pPeQCdkSLAz/W9/6VlugwH7Q2v/lL38pn//85+XnP/+57YSKFxcLtoP9QjAIY9HJ9M/+7M/sqAaEya688ko7KCd9XpxHEQnfgUiRP+Hz1113nf1O+ijh4WzatCllwXHw3XhAhO54vPTSS097PDfffLOdn4djgMARUvv1r39tvVUKHijwSCSwythAxUbJGxhihOYXv/iFPPzww9YARgu3YCQJkd1yyy22yoxCAFrZ2SYbrW4MMfmO9773vTb/QekyLfuHHnrIFgFgbOOBkXYdKRESPIhbb73Vlhcjrhj3ZHD7wncQcmN7CIPhcVE1hodDmDJT2F/yPng8V111lfU4P/7xj1txw9NCMAkdMpwQFXZ4OlTXxRNbZWygYqPkBdfiJ0H+wx/+0OYtorW0MVZ0IKQAgLARLXoMZi7JVHTIdxBSwoOh0gsxpXNmPAhTEZIiNIWxZj8RWQQG8UkHtx8cQ3I35HTuvPNO6yFi/H/wgx/Yv6dL5HHid/C28Lzuuece64ES6kQgeS9hw0cffdSGERHedKrulNGDio2SF2jtUgTAghGKJjS08uksiDdDCx9DFh42o1WdCzL9Xle2TREAlWZ0Qo0Hxpj9JL+CqF577bU24Q+ZbEv4ZzlueEt4Se95z3us4FB5lwmxtg1vihwToUT2hzAe3h5iRC6HoYYImVI8oIIzdlGxUXIOxphyW/IXsQbQxHuhVfzhD39YLr/8ctvqjzRumXoguYB8E/tG6IxEfKyybQeGGaP8J3/yJzYfg1FGZB3Z3EcEh0o2Cg0IqSUbkksHzpUTUXJXnEcKCTiPhNAoGMCzIp+jgjM2UbFRcgpVWYRSKI1lMMlIoXFGipg/nSspr8112CySdAw8n8FbY6QDlkT5EAQF40/4jHlp6MdCQj+bRNsPfhOvCWFDdMJJtTw5mePE75Fvo+FA3uh973ufDTMiOAzLQwhVBWdsomKj5AwMCiMCEDojcR7No6HlS0uYyit6oxN6KXQwugzvT9KdfcNbiwViyjAx5DWo5uI1+5xPEAByShRaANvPucHbSEZA0gEPjtwbRQR4O4gsjQiq1VRwxiYqNkpOcP08MMZMUhYtR0NVE0lsQjwktDFIhQ7GmZ7/hM0IC9I/KBbsD14FQkorP9ueTCogOOGFB1TJMZ8Pw9PkCn6Tc4yng3fDeeY5gsN1QQ5Hq9TGDio2StbBg2FkAIxZrKozQmfveMc7bHkz/TQwTIUOQoNxZqBQWuYkv2PhKsKoNMNzo5VfSJBbog8OIc5cG3y8OYSO40CpNCXSCA6DetIRNNVwnlKcqNgoWcUZZPpYMD1ANEOG0JA/QGyomCoGoQG8AUYEoEVOGXcsyM/Q14VOj1Sa5aKPUKZwzPG8GL0B0clVOM3BbxHKo2gADwcvjxEW8HAoGU+3w6lSPKjYKFmFODzVWYwMEC0mTwkuZc0YnGLxaICqM8Y2wzjHG/7fVdUxojJDy7C/hQh5oxtvvNEWbZBDieelZQvONcJLNR7hU44VY7fRwZdQa64FTxlZVGyUrEE4hD4VtPyjTXhGi5+qM4SGaYeLIUcDVNQREqSzZrw+NCTFGTOM/jOMU1aoQkpYC88Co8+oB4zk8Oyzz+bF2HNMKMdG6PBsCTcyhw+CR9GFMnpRsVGyAoaKYUkwGtEqzxAWWvzvete7bP6iWISGMCD5GcI98YwhBpxOqHRqpO9MoYPRpzqO0BYhQfaRwod8wLknfEoolZwd18rzzz8vv/vd7zR/M4pRsVGyAiEzEr7bt29/k8HAEDMtAFVZtKSLRWgwgpQHEz47duyYt/bNsH8sJL4pCigm8CyoGGP/mP4gWnl6LuAaIIzKQJ5MZ0A+DLEhf6PhtNGJio2SMYgLk3cxZAujBYSDEabclSqkTPvR8F25INr3YvBo6VMQEG+cM4ymG2omGyKayT6m+lnezzYT1mK0aYw9k6DFItvHn99mLDg8HPJbVKhRTp5o8FKlOFGxUTLChc8YYJM+J5GtUpLAlLzSaz7TkQHy2eLFU2NkAIagifW7GF/GBCP/kC3yuY8OPDI8DIogGNstn9vgSsTdFBIMGIroaXXa6EPFRskIchokzulXExk+o+XK3CdUn+HdZLtlnC0ijSuGjkKHeL3c2Rc8GsYAY7j9QiBVkXDvp7CBfWAuHMQmVll3rkSIRgieFQUD/AZik43pEJTCQsVGSRsMAzF2OuZFC59hjKk8ixy9uZBhnygHZsIxpjeOBXkORjdmCuVC2LdMhZwhdRhaBqF99dVXvbXZwYlUPLHieLrpqBkVnIpGLRYYXajYKGlDL3R6oBPnj5ZYptqJ0EgmeZpw4hmrdIj2fRhb9glPLdbv0RJHROmgyPNUtov3Zns/IB3BC98OvFDK0fFunnzyyZwY+njFB4gl18s111xjc3t0NGXSt1wcK2VkULFR0gIjQIc8chr0Q4kGIpPN0Fk2vwvc9zlDzT7RqmY641g5A4wy+SfEpr6+3q5LZbt4b7z3p7uPbHuqn43cFjetNLkbqgojSXfbHIkEkWM7c+ZMmz/i+DOIK9uijA5UbJS0wKvBKEcrCiAHkKlhyieEcID8E1MhxCpzZp+mTJki73//++3Akm5dNkm3JY/XkOpn2fbwz2DsKUc+55xzbEfLbOGOUTLHCk8Rz4Y5jehs+tJLL6V9TJTCQsVGSRlufrwalsgEOkJDGWsuJ+rKJhg3pmTGEDJWF8npWOEe3svozYVSEJAp0Yw43s15551nj0Wkd5cvo4/HyDXEOSGkF5kPVIoTX+jG0paDkjx4ABhlBtwMN0CESTDcF154oTXMhQ7bS9iIEQ3IUVC+HWvIfVdZx3A7PB+tsG94bYwswHhl0eCcI0ThC8cPbzfawt+wM4hG5EKYjLHmmIjOLaxnOwjDInrkbljP+3g/S+T3sBDOpfHDwu9ynfLbbF86np+SXXz9ff3mZOSn17BS/HDD0vkumldDq7hYRnKm1Yz3Re6FwTIxanRKjebV8F726Z577jmdpxktcD5ZnFhwTjl3jPRAkt6JAQvGnPdREEJpMgu5HSoSeS9DzuCJMM4aC2XUVCoiWog4A266hVHBqfj76le/Kl/4whfks5/97Onlc5/7nP0b4UyW+++/X/7zP/9TvvzlL9vpHR588MGzvouFPlEMlUQYlJL1J554wp5PcopsJ0MoMdhoNNGKFKlwgVKyR8mBx74erH3hu1K+d523Kja+OWuk9IZPin/l9SLlxREmUbILNyITh3Fzh/fHoBVKfxoGoaSS65/+6Z9sfuOf//mfbQ/1TOHGxwDRo5/y2D/90z/NKFSHgUUwFy9ebI3r5z//eWusohkY/v4Xf/EXtuNhZGUd34OB/bu/+ztZs2aNfPGLX/T+cjYYNaa9xnhiTJkW2oGR+9rXvmY9q3/913+1U2NHg2PPaNp//dd/bWe//PrXv27X853vfve77RTM99133+lWfPjCOgwohvdjH/uYzc1gwL/0pS/ZkRI4bwwyynZihDHOiAhTJWCMWcdICqzjmNFvysH3s214EvxGeEMD433w4EFr4CPn9GGbYhl2PsdIAnwXf6dSjUYBHg/rwn8DaBCwuL/zyEJYN3zh/PE9DArLggfunrOea4ocHqNi07CgJJy/ud9zv+Oes949Rm7TWGDjpl3y1ft/Io8/+bIR8vjFHP6//ci7PlO2d734TsWe2tZR0jRFfAsuFN+keeaTZd5aZayAUaEggOmQmQqZ18DNhvH66Ec/astnMVR0iuSGJeyEx5Mp/BbiQEiFVjehOoxHurDN9JzHkNDy/u///m9rEKOB0fr7v//7mPvBBHEIDuLKXP/RwKgy9QK/gVjiKTkwpngGGHLKqTmW0cAgY/Aff/xx24eJkQv4XkSCcemWLFliBwGlfxDeB/uFx7Zt2zZZt26dbeXzO7zmuziXLS0tttHA95KQ37p1q20sOE+APkeIBa8RJUSH38RDYGBSFt7HNrCOv7OPkQv7yLFGkNwSLjKcD7cA6xEcPuNec775jBO28IX3siCMTjDZHraLbcSzQpQ5LuwT+8M+c4zw1DmH7DfHhvPAmHgcL/ocsXD8NmzYYP+GYHPcqFzkuxBFtgGGh0PbNjTkQnjs56AYuTd/DYrZw9P7OBo41tomr72xVVp2HzTHP/4kfD5upNG080ruwOBz4yE03PQOriEMKEO38LxYoFXLfhB2ideBk/sjfErlfIBxZducIXXeBY+cB55TMUa4iKpADBuVW4ShEE5CTw899JAdrZoRHsixEdrCaALfibC4UChGF8OJoGCcMdTsN7/HNriGRSL4TLQl8m94ARz/cM8i3ANxdsn9je1wwpQJ7AfHiv1GlMIFiX1HjBBXxIcQIQJMA+eVV16xIUGOIQ2Lxx77rTz6y18Yb/SH8t3vPmA80y/JF/7rP8zyb/LVr/2HfPuBL8jDP/iS/PhnX5bHnvyGrN34U9l74GU5cWq39PV3SP9AlwwMdptt6ZPhAMc3830rdMae36ekDcbvhRdesC1VBwaBEQKuvPLKrHgw+QTDQ4uXCdGiGTL2LVfw2/yma6VzbPk9jCCeBoYfY4eg4MkgGt/5znescPBZvJJHvDl2MIJ4abSwaX3TOsejQUBoGGBE+RsC5cTFgVFPtoHgjgePLmzEc7fwGqEg9MTC9UBIitAVfyNExUK4inXsd8gLGDpr4VhwbJzAITZ8P+/NPeY3S+izxBKwi5SY7Rrus+LQ198u3T3HpbP7iHR07ZO2jh3SemqdHDrxvOw7+pjsPfKo7DnyU7P8SHYf+qHsOvgj2bL7h/Lyum/Jky98Vn715P8rP3/8f8pjz/6zPPfyl+SNzT+Ulr3Py/GTu6Snt800AowADfebfR99Y8Op2ChJwY1P2AEjRqvYgaG6+uqrbQgJg1JMsE+IJ8bYGTYHxi0bxQBOUDhm/AYLLWp+k1AMngbbgDBgVPFS/uM//sPmfsiNISiMaEBrmnwNn+E7EA0X2kL88RAy8So5d0543MI6tyAiLmdCeJScDd4ei3vOekQEL4SFbWRx4sExcIsTlfCF94QvwL7ym+xf+HWXGWeEpMTHYoTeNyS+0kHxl/dJWUWnlFe1SWXtcalqOCI1TQelbsJeaZy8S5qm7pBx03bI+Gm7ZML0fTJp1iGZPOuYTJnVLlNm9sik6f0yblK/1Db2SkV1l/jLOmUo0GaE6ZC0ntghB4+sk5Z9z8u2Xb+TDVt/Li+/8YA8/YfPy6+e+gf55RP/S559+b9l8/bfmPfust7PoPF8AoHRITwqNkpScNMTQqOFzHPAIFMmy5harmNkMUFLOZZXg4Fl6BT2MR4cC3c8+B6Mq8sZ4KGQDyD2T/iF1xjZH/zgB7YggaIA5sqhggoPhFY/eQPyBXg1hHKcoBDqySSU5DwPDLcDYWBBSBAL8kgML0TOiNJnCjvIDTGVM54K+8nvs38uF8N+ukfWs//OY3Fei9tmnjuRSWU/nNjxfe5YJyTMMwmJCYULQ+IvHZDSim4jJu1SWdcqNY1GSMbvkcZJO6VpyjYjKDukYVKL1E/cawTmgPnbYbMck4YJbdLU3C3jJw1I8+SANE8RGT8xKI3jg1LfKFJTK1JVXSIVlT7TaKBs24i133h+vjNhRAchM0Skt6/diNAR69UcOrpeWva/YAXohde+Jr955h/lsWf+WdZu+qEcPrbRelTkfhDKYkXFRkkKDAQ5gfAQGkaA8BnGKdyIJW0QUiSb38t3kbMg2Rtp+DAOGFqmTY40FLwXg0kr2xld4v7AI7kRxISS3n//93+3j+RO8E54L8cRQeG3XZKZxDWGlGPI39OF88HiBMTlO1gQC/YJDxR4D0PDsHD+8BzYfsKK5K9c0p8FkWTbERKOG9vK83BPxS2xtp/PpXr+3Ps5Bxwb9o1jfwbzdycqnofiBAXvpKLmpPVMascdkPrm3dJghKQRQZm0S+qa90jt+ANS3XjEvKfVCE+b8UQ6pNJ4I5XVvVJTN2hFpGl8mYwbXymNTVVSV0+lWqURFI4puaXS09sVeZ2kQyAwZPM5be375dCR9bKt5Ql5ee0D8vhz/yJPvvA52bHnGensajXHgPOQXqNjJFGxURLCTU8LG8OIoQFuLspRqTbDkDlYz82XC7JxQzsQDZLrCEYkGBCqyjDO/Cb7T8sdY4yngofHuF14JSTjeY5nx98RFSaSI6FMcpmwI+FHvBMnaqka3VggKC7JjldEOIv8GSMcUFpNL3zKqOloS9kx73H7iyiQ92Fh20iQIyrsQ7in4kJiCEkm281xTOX8ueso9JmgEUefOcYVxltAVIbMoxHnsl4przQeSu1xqW44ZDyQvUZQdlpBaZjYYjyTfUZoDpm/HZWquuNGfNqMR9MhZZVdRox6pKy8X0rLB81xDJpj6Jfqmkqpr681wlJvH2tqyTFxfCleyK6wJMJIs/F+eq3nc6R1k2zZ+Vt59qX/kt/9/l9k045fSXvnwaITHRUbJSkI62CIwlubDAkf6dUUCxhWOh1G82oIKTFaAMLC/vIe8if0gfnKV75iOyT+8pe/tOXdVCphsMnvYIgw3Hw3xjkaqRgq3suxDRcVnrMe4WAMMUrAr7jiCrssX77chr/4O9uE14YXhQdFTohKKzwWYL/YznCvJfJYjAiep2IcL2PsjQdRYYSmvMcISrs0NJ80y2GztEjjZOOhTNkp9RN3Gw9lv9Q0HZaq+lbrzYQEpdt8rtd4Of1WmGwozX63K2QolSojXvX1NdLQRJ8aChqqpNKIC15LqScuqZyvXMG5onDgRNtu2bn3WXnh1a8b0fk3Wb/153Kq46BpOOSjcCJzVGyUhHCxU+FEC9eB0SOEFu7VgDPOuYDvzhS+A++MPAoho2jfSSKc0Bc9093+EELcvHmzNdx4eYSaaP0T1sF4EZbiMRHRfs8ZQL6DkBeiwjbgqdBvif4zF1xwgR1ah+fuM4g/nhM5HvoguT4giCTlu4TnEB32k1wbnkr4ucnG8UyFN/3e6RCYS9APGJHoMMLSanMlzdMPyrhpxlMx3kp9816pG3dYahqPSWXdCamobjdeTaf1UErL+2zozOcfMt8X+/iWlZeGvJfGWmlorDPXbrUR7UqpMMe8kMQlHngzpzoOyO59L8gfXr9fnnnpCzbXQ6WcOcKhNxUoKjZKQgi5YMRo/QI35MKFC+10vohOJLm6YVP9Xowb246XgVDSgsfwEt5irvto+QWMEgueHOEvvoPfdfueKXyXNXyet4KoINh4iHTIJOyFiLMQ/iI5z/YjcogJHgrbxP4Q1qSwwC0IiytxduHOSMINfq7OUzj8RkhE8cjMsXS5FeNxkFdBWGqaDkjDxF1GVLZ64a8DRlSOSHV9m1RWh8JeeDf+MuelGMGMs+ns1unjbH73tMA01BnvpVoqw8Ji+TgGuWBoeEDaOw/Jzj3PGU/na7Jhy89t6fSbBL2AULFR4sLFS2iIEIxLznITM6cL4aZCuVnZTsQDI4shxuCSh8AjY4ws+qkwthadHunwSPgrmgdG7iVb+8Rxct4KosL3siAsCAnHkM6wCMu8efPse5wYUhLNo/NUEJPwMBjbXjChrzfhPJaA8TgCUldfJuOaS6TKeCQhYWmRpsnbbdVXSFiOGtE5abyVkKfiL+uzZciIEt5PMrhj6/dTDWYEprbKeC8IDOGxcIHJT84lXwwO9siR1i3y6vqH5I1NP5Subqb8KMRrQsVGSQJKcDHertVES5ywTr7Lnd3vRxMWjDD5CfqsMCwM44bRX4WBGxEa+qm89tpr1mPBS4hWGIARSmef+JwTFuet8D1UfjGOGIl6ysM5bryXcmL2Ac+JQgK2y5U7IyyE6ejUiaeSaclzJJka2mifZ1/cQp+QoPQa8TDC0kgVWItMmL5Lxk/bK7UT9kl1wxH7t3I8lorukLA4byUN2B4EpKKCzqTV1nuptwJTZdaNToGJhCq2to4Dsm7zT83yYys4CH6hoWKjxMUZRZfw5qZlcEYqtTCw+QBDi7C4sBcteicshMMQFjwW+q1QdkyPe3re49UQdiJ3gdF2oSWEhv2KxCXgE8ExcB4LiXo8PKq9OC4UFjAgKaNfIzIk7Dl2CLbLmSB2bBuP5FbwWvBoXGFBtG3LFpl8N8eGQgj2m/1wgs/5QPBDpdKnpH/wpK0EIxSGN1Ne3W6FpdQIi995LBnA8Q+FyEptxRj5l7r6WhsuQ2A4N37z99EsMJHgzXR0HZb1W38mG7b9wvbhKTRUbJSEEL5xhpo4N4nqXA1NgzHEiGF0Mc4kwREMPAAMNH/DC2D050ceeUQee+wxKyz0W9m7d6/dVoxerBwL3++EMxwME/sUS0Cd14LHgoAw6jJhsFtuuUXe9a53Wc+FPitsH0JI6I4e/xQiuMICF4Zk+9gvd0wLEy8UZhaRM50wOT54Wggj+SG3L4gNx5zBGINBypJdKCx7HpnPh8j7bTky4bFQDqbKhs1sJ0rO3djRlzcREpwjsnHro7Jt1xMybDyeQkLFRokLxpmQDoaRG54xuCixJVSUDcLFBYNFlReJ8KeeesqWGLuBJakMw8Pi9zHartoKg4eRS7bFzm+d3TEwBIaKfeIxWp6FfiuMKHD77bfLbbfdZkuO6WeER0IYDG+K+VwQF0QR4eO4sT8UJhSKsLj9OZszORabvPcP2oR8eU2bVNYflqD/iPVYEBjOkRMW9oljyTFFjNw5SPZcJAPbGgqTlUtdXY3tA1NbV207VhIi43y9eX/GLggOITU6hB4+uoE1oT8UACo2SlwwIq6HO6xYscJWSNlWZBSiG7MzRBMXBo/EQ6Evi8uzMGQ+Q7yQJCcE5bwrRAAxSJdoYSq2FxEjRETyHjHFa7n22mtP7w8dJfHqyKnQv4aRoumnQ0k0nhaVYS7HEs1zKhTYl+rqKmO4q805dMLSazs82o6RE+hpTx+WHVI/YY9U1R+RYEmX2aezh5qJJyhxTn9SsI14MYiJqySjP0xlVaVdV8xVZPkgEBiUQ0Zodu39vQwMxp9jJp+o2ChxIURCixYDg8BQmhsviR5phHiNkXJxfScujElGVRjigsgwejFhJ6qv8GDwGPAIMG7ZJJoQIF6Ew5iJ89Zbb7XVYST3+X22n32nwADPBS8Gz4VtRFxcnqWgCevPUl4RkAkT/TJhcpcRlj1e58jtdviWUMfI43bYFptj8fqvGPMV+p4cg4DgxVQarwUvhmoykv70g/HbMJkKTLIwiOehYxvl2PEd3pqRR8VGiQmGljCV82oQGXqtxwuh8RknEDwiGogLQ7rgsYSLC14B4uI6SZILiBSrTMGAuXwL1WCRrXL+jjfDAJSUeBMGc/O/ICwOPCtKqRHMaGG4wuKMuIQ8ly6pqqOj5D5pMh7L+Ol7pL75sFSGC4tN3g9Ybydax8iUSMHr4K02F2M8FvIv5GEQGjpbUpCgYbL04Bo/0bZHjrZu9daMPCo2SlwIC2GgueHpyEmeIjyExkXtPBc8AfIULhmOgFAhRjKf4V3CxQXDnQtxAbYPQ4Uosr2ExRhU884774wqFIgpYTEEhpksXdgOryUX25cJnAe3nCbMc6EXPWExyotrjbg0Tt5ue+AzpEtV/TFPXLwOkj5zLJIRlhRsPZ5JuRGORLD9jIpcXlFuczB4MVSWlVeUWS+G0ZKVTAhKT+9JO9oAow4UAio2SlxcKAvjQAUWHgKvXc4Fb4ChUhATOk0ydD65DAw9sXVyGU5cUknkpwLbxm+5UmQ8lfPOO8+GxN773vfawULZ9lhhOcQUcaGvTrgAnmXQCwBroI2Q1tRWWwONuJT4GTK/yw6Xj7iE8i3bhflXqo24hMqOXe/7JMUlkmT0yGwbAl9bW2fOfZW39s3Yc0VFWXWooowxyfBiytWLyTr0v+k2gsNSCKjYKDHB6DqBwBDMmjXLGmNyFlRfkXOhWgzPhUm/nFdA6A3DgwDkinDvhX4ueF0MRvnud7/bliLzfP78+VZcKD2m4IDwWKTYEGKLVXDgRCebApned53xXCqqgjJhYomMn9Qpdh4WIy5Nk3aa5/utuDBmWKizZEhcMg6JJQHnmfPA5Gk0Rny+N593RITy5JpaxnwjF1NjK8xOlywrOcDcvwMd0tsXGnVipNGzrLwJWvqElhAWCgQwkBh28hlf+MIX7BwtTPhFWIw+JXRKRGBcpReGJRctVL6T7cB7YSh9vJebbrpJ7r33XvvIqAb0dWE7qGJDYH74wx/a6jG2kxBfpLHHSOa7NZ2U4BAa81GUMWSEo9d4LsetuIybtl3GTyPnclDsKMfVncazOeO55ENcwkFoyOXRR4lzE3ksQ+es1IgLUyDUm/dV234xo71Xf6EwPEwFYWGU3avYKNb4heddqLSiMoxhXvBggLJgPBpyLvRxyWXOJZxwgSE8Rv+WO+64w+ZfmI6a8BijIyN2eFbf//73rcAQymP4F5d7waNBQMO3l+/GUCYyetk0inxXrO9zfV0QjbIKkvpHpI4BKqdss8l9Ky5VRlzs0PmMcpyFZH6asA+ELfFmXMj0NGb3XOlyaAgZevdX2R7/IS9GRSZflJYyKkZ2+sRlSsnJ5x8Klj35TfG3nKm8iYVvzhopveGT4l95vUh57LisUvjgvSAwLORe6KVPYp8h68nDIDr04HfVV/GMZLbhdzBehLcQEkaXJiTGEDkYNowc72GbCduxIChsL0u0vAwiQ6kyAung+5kKOVYYB3HCawM8pkzgeONZ8cjYaOwHIDAuwY/AlFZ22flYSssGjPAwfYE59lnqhZ8OQ4M+Obq/UVoPjvPWnAmbOZEJvy4Qv8raDpm5eI8wXhnHVsNkI0NJiU+WLrhBrrr4k1JfG5qhNdts3LRLvnr/T+TxJ1+Wrq74fXpUbMYIGFuMsBMYjCjiwkISH2ONsGCs+XuuPZZInMCwEJJxAoM3w2sEBiilJiSGh8VzJzAY8XiwP24kBAffS7VaLBF1YsPfmVcmE5zY0eJvbGqQ8jLjCRiBsRN9maXcCA3zuVhvBYEZIY8lkpDYNBmxabLHAYHGG+R8RBMRtru2sUvmrThk91UZOUr9FXLeyrvkiov+RPy+xGP+pYOKjWJxAoPRREgQFkJLeAIYaicu+QiHxQKDhQEjsUwBAj31eaRPTCjZ7LPb6LadEB9eF9sezYOJBftHVVz4ZxgJAcGJRfY8m5DnMjQ8aMRk0LT8e6SyyngxJPIZP8xvPJgSs10FIjDhDA36jdiMk5NHxtnzQTgz0psJJyQ23bJg1SFvjTIylEhTw3S5eM19smrpO7x12UfFZgzjBAbvBKOMkWasMQy165SIuPD3kcJ5MeRiJk6caAUGL4YhYzD+/I3tY5gc8kRsOzkZ9ifd3vp4PoiN84DYBkYJiFWJBpmKjc3BGONLeXJ51alQvqWy2whoqD8M1WWFztBgqRw7MEn6OiadFv94qNgUBoTQ5s68VK644BMyeeJSb232UbEZg2BEwz0YqrEw1PQdcfmXRKGmXIOhQmAQFMSFuV4YQZnXxP8RSsSEEBnjjWHoqYbLxrYjwIiN8+AIA7n5+mORjticlYOpapeK6pDIWO+FfjFFIDDhBIbLpKN1qvS0T4t7rByITZ0Rm/kqNiNKRUWdnLfiLrnk3A+bBlWFtzb7pCI2mrkrYjCcGETnwdDXhdJkhoNhLC9yG3gH/H2khAYDhfdA+IXwGCMn09HyLW95i51Pn2Q5AsRoA8xP88ADD9gOovSNoZIsW9seGXKjlZ4siY1sqEy5xDdoBaZm3H5pmrpFGpoZyPJ4qDS5lIR/cQmNg24zyQiNo/CCgWMLvJrmpvkyY8o5ORWaVPF129h3oY/1pISD4SQURtUYJcpMHsYw/I8++qgNmWXTSKcLxgnvgZJpJhVjaH46WzIXDsl2SmbZD3IwDBPz3e9+V55++mmbTyLcl264LBnYNsQmFQMaDbwXqsUYjp8RkxunbrNTHdc0HJXyyi5vSJjiFBileCkvq5HpU1fL1MkrvTWFgS9gbngXWlAKl3AvhjATUx9/7nOfs0aaicUw2oxjNpK5GCBUhiGnTPmSSy6Ru+66y85cyQCerONvCCVeFz36H3nkEds5lBCX6w+TCyKFxVW3pQPfReqisqZd6pr3Gi9mh9SOOyQVtmSZaY7THBZmlJCZhCuZUFLilymTlsn82VdIRXluJjhMF19NdbX4/enPD6LkFrwTOlsSZmJGSkZO/spXvmLnf8FgU1WWqzHHUsF5C3gtjEVGqIzZK+fMmWMT/66qjPAYnS7p3b927Vob5iPPlM/tdyXWiWCfeB/5pJDAhHJOlP42jCuT2roKqaygOovEeYkxsuY+CrIQnR67EWptuo4UJVJbM0HmzrhEpjQvs68LCS0QKFDwUAglERJbt26dHe6efhokzFlfKN4oRhgDTBkxw8csWrTIjlXmDDSeCmJIToke/nhgeDB4afmE33PD1ZA/IlfE9sWD93KsXVEDYkr+KSQ85vjbcmU8MR4D5gbpMEuX+XuXUTTzaJaQ6WWhcMA85GlumGxBgUDXyanS3TbdWxMfLRAYOcrLqmXJgrfZooDG+mne2tyiBQJFCsYNo4ig4AEwFfKXvvQlG25ynRgLwYsBDC6hKIw2k4295z3vsWOTUeGFMQfCZVTEMewN+0A+CQ8t30ID4cKCaCSC9+PVMIIBQkq/H/aXdaHyX+MZBcuNNTb7Gqg1elNvWghTRAbmSrB/mQR7z5NA96US6D1HAv0LJTgwXYLDjRIMmN8Olpll9HpAhdEMGlv4fKUyY+oaWbnkVqmvm+ytLSxUbAoA14KmTJlQGXPAEC5jfC/msicXk6tcRqo4kSE0RrIfkWEKZXr6IzL8HTHBC2M2TkQG4UQoR0JkHCGBCG0/nkq4+ITD+1wveYTGiQzrY33mNEFPgIJOgBrPFqCe881yuSdAi0ICNGTeYz8zcgKUcL+UgoZRtieOXyDLFt4ok5uXiq8kcYh4JFCxGWEIl9FhkSmHv/jFL8qDDz5oQ2b07yCXMZIVZZHQqqe6jMEw7777bjsQJjkaQkwYLASRbXYDYr766qu2Ym4kRcbB9jnBidaRk7+znn1BZBAbRMl9Jj2MET9LgGrCPKA5RoCWGw/ofOMBXSGBHk+ABmfkTYDsPpf57SCZLjyYDVS68gcFAU0Ns4xH8w5ZMPsqKfWb66ZAUbEZITDMVJaRJMeLoSqLjpgY50IJlTkwQuRg6IRJ+TJ9ZejkSKsfY8y2ss2ULbuRohlvjYKAQtoPxJJ94dHhXtukf0PD6eFYMhOZBJwWoMoIATIeUB8hOAToMiNAa4wALT4tQMGAeb/9nBOg9M06Q/xXVzO3TJ05jwz/XytV5rUtdMhQLTSMlh/oT0NuZtXS24xX8zbjgRdW9VkkKjZ5Bk+FXAajK+PFfPvb37aeAGGmkS5bjgYtXnIWdMK8+eabbc9/+sg4Y4xokod54okn5Mc//rENmREOLCSPDGwr3uyLC6GxsA+Ii/Nkstm6Tx0ECE/GCRAhuMkhD8gToGCYAAUGEKBx5r2pCRD7x1D/dQ01drZP572VlTPLJoJbZ4zWSB4HJRkQmoa6KTZHs2LxLVJZ0eD9pXBRsckTLi9DRdTPf/5zm5f5/e9/b6vNCqm6zIGxwZthvhjmjzn//POt6GCQHWw33gwiQ+dS8jSFEDKLBYUBhAExruwbngxhM/Ypp55M2kQIUAAPaJIVILFFCHhAlxoBOjfkAQ3MNAI03nhAVeYzbxYg5vzHe0FQKs2xiNxnvJ2KynKpN3+vrcPDI0/l/TEFVKZyCzmZxvrpsnrZu2T10tulutI0TIoAFZs8gAGm9f/UU0/Z6rJf//rXdi4WPJxCExnACGGUCZfdeOONtq+MS/4D20xuhs6kzNiJl5bvvjLpQNiPBZHhMfOczEgQLkDVZwlQsH+prYI74wEtOe0B+XzVUlfbKLU19UZcy40gRN9vzjHiW11dJQ2NTPPM3EHeH5NF1SZnUAzQ1DhTzl3xbiM075DqKoSmOA64ik0OIZSEESbhjydDPoMSZkqbCy3M5MDQTJ8+Xd7xjnfYQgC8mfAcB2EzhpOh0gzxxDMrxPBfJE5Amb8G4XTeTPGHi9h+cxufJUB1ngDNth6Qb+BcKR+6UoI9F8hg10IZ6JkmQwONEhiuNF5QmVlKTUOB7zhzLDg2TN9cX18tNXXkupJrSPj8ASmvKIzKydEG5c0Txs2T81bebcNnVdajKZ7rV8UmRxBiomyZ4WTIzaxfv94a6UIpYY4GJb50yrzlllvso6sycyAq7BNhM/JMVNEVqmiGg+FkKgPyTUzKxuyclG6TeyK0hpi6ooDiFx+HEQgpl1J/jVSWTzSvJsjwQLMM9syUgfaF0ndytfS0XiC95rG/Y4FZP90IUNNZAsR3lJb5ZPykPmls7jTPmRqBaavfvPhLEZlB26FzwtS20CYoWcPvL5epk5bLxWs+JMsWvl0qyk2DosjQEQSyjCsAoL8MA0xinAutuiwSDCxGl06ZeDN01Az3ZgChoYMmw+QUizcD7BvJfxc24zWP7C/i6kY6INTJeaKRwKPLPXHe3Lkr9DBhOOwT++f2OSZ2zh0aDDwyEoIRlNJes3SJr6zbCIlZSpkaPCiD/X7p6SqXgT4jRPYrQ8cDr6esYkhqavulrHLIilKynpCSCHO9llbIzGnny/mr3ivTp6w2rwvH9qYygoCKTRbBQDGgJCLjKswK2ZMBZ4wZBeCcc86x+Qxa+OGECw39f4rBm3EgJuHVc8A+Oy+GRyc6hNcQIdZz3pzw8OgWcAJUqOLj9olQYVyhiQUCZIfXCS2IkBUgf5cEfT2nBSg0ZYI5BuY9Pt5nPBwVmezBuWME53mzLpfzV79PJo1faD2cQkKHq8kzGB36lJAwZy4Zev5TmVUMQkOL/9prr7XjmlECHCk07ANCQ46m2IQG7wwhjdwnzhf7hYgiIPR3IsRJpSCFG3hujN/G+zg+DMFD59XZs2fb2T3x/Mj/IFCFFoJjW9iutIUGgvSdKpVgoFyCw5USGKqRof5xoVBb93wZ6Fwh/afOk4GOlTLUM18CA1PNexrte2PlgJTUoOKspmq8HRXg0vP/SCZPWFxwQpMq6tlkCMaXhD8VZs8991zB9peJBob4rW99q6xatepN+Rlg3+icSak2A2gWunhGgkcTXkWXLLzfiQdLuOfjBMbhBIvQKY/RQnAs+QCBYVvDty+nRPGASny94i/H8+kyi3ks6zbruR9CHpA9E9b7UQ8oFn5fmYxrnC0rl9wiSxfcYO7TcQU7BI2G0fIExpfWMFVmhM2KofzXQbiI0mbyNLTeIw0y+8FoBkwFwIjNxSKgDvaHyjMMcKY40XECRB4E4XFhNwx8+HnnWCE64UsuBYhtckIT6cXlH0QnUoD6jOgwmZwnQGYp8TkBChoBCj2OdQGy11ZplUybstqWNs+cer5UlFfzl9AbChANo+UBjMf27dvtLJlMZ0woJpsGJJdgmOikSY4mmtAA+0c4kLBSsQkNYHSz1cLnvOLlcRw4LoRMw8NudGwl9EZ1HsKC0ee4UjZO2I3wG32VGKw0Xggu2nlIhDVQXsHDyAsNvDkENzzQJEM906S/Y6H0tq2SnuMXmGWN9LUvlsHuGTLUP14Cg1Whz5wOwbEvhWtksw1jnFVXjZfli94u117yKZkz42Jv8rPRcwxUbNIAg8M4Zgw1Q0lzMRljjBPlv1SdkaOJZuDw2PDUtm7dao1nMZKO4U6WSPEhhIbQMBEcYUcmtSPsiGeIt8vxRIAI6yFAiA7iEy5Ascqw4+0Hf+N7WXK5v5njBKjMCFBFhAAtMAK0UnpOnBGgga6ZMogADVWHCZBpOIxSASJsNqFpjlx0zr1y2fkfk/Hj5kqpP/E0GMWGik2KYHwpBPjWt75ljTEU9o1+NlSbMYMmUzRHawljSGm1M/wMUxsUi7cWCWKQz23n98KLDsjjkb+jOnHPnj3W+6HAgmOLZwSIC14OYkNHWsSHhkAiAQIe8WgSljYXLAiQP0yAqk8L0EDnAulDgI6fHxKgUwjQDBnswwMaPQLEeWPCs1nTL5CrLv4zO/RMTfX4gs3PZIqKTQogNM8++6x85zvfsXkMbv7CCF0kBwaL0BmhnVi5DIwmYoqh5HmxwrbjdYwU0UJveD9UKeL1cP3wyDBGeEbAtYSXEilAzgPCK3IhOBY3eGi4CBU3JVEFaLD3bAHqbj3XCNCSkAfUN0GGwwUogABxLAr7eLiwGR00r7nkUzJ7xkXm3I+usFkkKjZJQmuVOWeYP59QiWttFgsYI8Jmy5cvt5Vn0XBeDTNqOgNYzLAPhSSYbIvzfmi44DkSeiPvw/hyXFeIEeudUCIkCAseKaMgTJs2TRYsWCArV660uSBGQ+C88h6EJ5oXVNyYfXACFDACNFxtvJtGI0BTjQDNNwK0QnptDihcgJrP9oCMAAULSIDCw2aXX/BxmTBuTkHPQ5MtVGySgBuf8c2oOsMwELqI5RkUKhieFStW2AqtWN4YYsMUAcUcPgsHg17IOSeOcbj40LeHPI8LveH98Bzvx1U6cu1xDmkw8OjyP0uWLLHzDc2aNcv2C4olQKODSAGqMh6QJ0BdCBAeEAJ0nhGgpWbdLBlCgIZqzgjQCITgwsNmV1/y57J62R1SUz3OejljARWbBGAIKAJ4+OGHbeuTMAc3fLFBmS4GKZZXA7S86cDpcgrFDsaZ3AleaTHA9jrvJ7zwgEo3GjmID54Q3g/r2S8+g4ggJoTVCL/h/YQLEB4QAoR3RA7ICdDo8X4gXIDKPQFqMAI05bQAdbeeLz2tCNAy4xXNth7Q8ODZApQrD+h02GzRTXLtZf9DZk+/0ApPPsVupFGxiQM3PpVF3/ve92yLn5u0GIUGg0KLN9oIAQ6MFiE0Jj7D2I0WOId4DHgO7GOxER56Y/spscfbQXgId7K40mv2k/cD55nrlcYFuR4EiOKDZcuW2UFWnQc0NgSIUJoRFARosEGGeicbAZpnQ3ChHFBIgPqNAA31EoIzAjSMaIV5QFaE0sPvL5PxTbNt2OyKCz4u4xtnmXWjP2wWiYpNDLixSZKTo8GzQWS4KYv1RmQaZ8Iq8SCEUyxeQCpgqAkNEopyxrjYQAi4BrkunfhwrtgnwmwHDx60DaONGzdaD5zKt3Dvx30Hnjl9gFwBAiNhRwoQRQijWYBCRQhnBChgBAgPaLDTCNAp4wEdv8AuvW14QHPM3yYakaoNvf+0B4TpjH9MOGYk/QmbUQRwzrI7jHfTZNaPTbOrYhMDWsIM0/Lqq6/ai4abL5ZXUOiw/RgR9iEeGLFibP0nAyKDV0Drv9j2M2S0ovelYT+c9+NCb3iniA2ig0eOCNEBlfVc17yfz/F9sQSIGVoXLlxoGykUJiBAvG/0ekARnVEH62Wob4oRm7lGgJZLzwk8oPO9ENwc4wF5AjSMANEIOFuAEJTqqgmyfNFNcp0XNisbY2GzSFRsosCNSz8TRgbAOLlEazGTjFBiREaPAXkzGFiMLUbXVaoVg+hwXlK5/pz44P24/XWhNzojM4FfeOEB7wsXIH6Lhgn9fOiPxSCkzgNCgHjNegQKb4vtGysCZHNAVoC8EJxZIgWoRKpkfNNcueic98vlF3xCxjUQNiu+8Hu2UbGJgBuOkMRvfvMbGwt34YRiB2OSCES1WL23ZOH8YlxpRIS39AsVjDceRSawz058CKsRXsPToeKNjskIkAu9OSF2AgRcEy6MjADh6eDxIDyU0jsBwjNCgJz3M7oFyHgzpwVo8mkBGmq/TCbVvkeuuuCv5Zxl75LqSkbpUDMLehQiIBTx+OOP2/ADNwo3+mgwwOxXIqNKxdpoFxsHBphjguiwYIRd676Q4HxgtLNJuPhwDKg+RGQQG1d4gAhRAeeG3OG9fIbPIh5skxMgQmwIEDkfJ0D0BaIoAQGiSGG0e0AlJeVSWzNOVq+6SN5+w90yd/a5Zp91sOJwfH3mQguYi0gJ3YTcZG+88YZNKI+G8JkjUQuem5+pktnn0WMIEsMx4djQ2i9E0cFI5wP2Odz7Ib9FiTUzzXJPIEB4QuEDjsYSIK4hqtzocIoAUX6NABGKcyMhIECjxQNi+wkrXn755XL99dfb537/6LAb2cQ3NBSQQIHcWCMNLbwnnnjCJlS5aVhGi+FFPDEM8WB/MQaZhm2KDYylEx2OE8aUawFjyt9GSnhy4dUkizsmXDN4P3g3VGcyxA73B6E3+mTh/dD3B6Hm+PH+SAFyOSBK790o2AgQnYzDBcgNv+PEp9AFiG3jXmF/3va2t8lFF11kRXS02Ixs46usYqA/jaZxc2zYsMG24DA0XEQjdaNnG/aNViot1nhwk3DzE04bizgDy3GiMyihpZH0djgfGNxCwB0bhMR5PxwjriuG2WG6DVd8ED7itfN++Cw4AY0mQHRCRYDmzZtnQ3B42lyLhShAbAPCwrBBN998sw0b5ssLLVZ8paVUIKnYcFMwJA03Chf3aPJqMBQUPSQaGYD9peNfvM6fYwWOGUbS9eKnwyuhJZf7yofwFPo5iCZAHCtCbeHhN7wfvCLnLTrx4fNOUMMFCJFBgLgWESCq4BAgPCCuzZEWIH6PXBRhMzwa8lWjpWGaS8zVrC4fFz03B60yDAoX/Gi7eDCWGAGMZTyoNmJkaFptSujaYMFI0lLH28Gg8jzXwlPoYhMNjoUTIBd+w/sh34PwsHCvsQ7PyIlPLAGi0Ye4IECIDaKDANEPCDGKNhBprgSI72N7yEMhMhdffLGGzVJAXRoDFzhFAXg1XDhctMV4o8eDm5kKO27weLDfq1evti1Lba2djTOktOBplCA8LLkSntFgxKKJDyE2vB1yPoSuyQHR74dj6cquw8UHOBbhAkR+h4FI6YSKACE+LIwJhwBRoBApQJkcTz7LbxLmu+WWW+yICxo2Sw0VGwMXN/0McPVHo9AANy1hDZK53Mjx4Ka67LLLbGtyNBi8XOCMKAYU4XHjyrmBP52hdMYyVTjuo/HYu+PGNch9R1EBxy18xANEyHk/LnSZjADhAVFoED4KAl6Qm4ohXQHifQjbJZdcIm9/+9vtaBzaEEsd/9/cd/tn/LvXiq/tsLcqNiVNU8S34ELxTZpnPjk6VJ0Llwv9qaeesolOLkbCaKPxRnciQwe8eEUA7DuhCWLsiBPGU0kMhhCjSOvclQYDxircQCaLM4pjAY6PEyLEhWuPykC8IETHhS65Fnlf5HHkdfgSLkI0nugLhGBQlkwjivBXZLjcfdbBcz7P/XLNNdfImjVrrH0If89Y51hrm7z2xlZp2X3QnJv4IfoxLzZAFc2LL75oh+/ACI9m9xjvzZWaxjNk/I2bjFYnN7wznEpyuNY7ooP4uDAbYKyc+EAs48U5iHeORjNOfFg4jogMYoPocA2zOC+S9yAu7nMOjmv4Ei5AiE24ANG4QpScAPF+hIUS7be85S3WO0L8lbNJRWzGfBiNi5NcDUbVXZSjGYze008/bavTnKcTC248bjRCEmOt7002CDeWiI7L82AoMZrhITeWcEMJTpyU0LF0x8kdT0KX3LuUXTPaNQU+XNfhY77xXpbwYxtNfBhmxw3DQz7mvPPOs0UAhM0IwY1V0c8mKjbmIuTGx23n4hvtYsP+Mi7W7373OxueiDRwkVCdxg1Hy240e3z5gGPNgsFEZLjmXEudkBGvw8UHY5no/Ixl3LFETDhuHEuubTfkDhELN9cPf+M90cQHnABxjePpUJFJoQwiNNptQr7QAgEDN/lYChNxg1IBhIdDKzCeQeNGo0/BO9/5ThtS0Jh19uC4O4NJSx1PB8+Hc4JxpEMpIoQ3ioHkffHO1VjHHUsW7mfua4Qc7wevB+/HTbcQTXwQGjqTajVmblCxMbiYumvdjAW4wdauXWunUuDGi2fEOCbkeN7xjnfYFp+29nID54CFc4MhDC8TpogFEUKQwsVHBSg+HBuOkTumiDmhNhd6o/KN14g9uUw6kGrfmdygYmNwLZyxdoHR+nv++efl5Zdftq3oRIJDSO2mm26S6667zoqPS8oqucGJD4sbyYDqQKomER+EiHW04FWAkoPj4o4Rx4zjirdOpRl9aMhNqtDkBrUWBld9MhZvUISWsm8mikvGw6Fo4MILL5R3vetdtie15nHyB+fGGUuMJA0EvB2EBwGiYyR5OEJveEUafosN1zIezKpVq+T222+3HUM1bJZbVGwMtGYoaxyrNyVG6ZlnnpEnn3wyYQ4HOFb01L7rrrts2IGSUW0N5h8nPixcuy7vQ56CvITzgDT8djaICnnIK664Qm688Ubb70a99NyjR9hACwfBcTfuWARDRDjt0UcftdU7GKV4cHNyk9555522PJqwmvZDGHncNcyCoEQLv0XzfsaCB0SDiPuchhJDzjAigBa85I8xLzZcaHTsonU+1lt85HAYLuThhx+2Q4fQUo53LNzNy4CEH/rQh2zxAB3lNBxRWESKT6T3Q4IcMSJ5zt847+EC5O6JYr4vaBy5QWYpdGEQT71O84uKjTGYbupaGOt9GzAwGJ9HHnnEDk6K8Ul0PLhp6ZtAeTSeDvFvjqeGJgoTJxwsCAl5Oze+G6LD+UeEECNXhMB1gFBxf0SKUKHD9UmHTYac0bDZyKHD1Ri4gRh9lpuLi5Ck91i/GDEslIdiZLhRCTfEOyaINjc1XiJJV25oWsoYsmIxSkoIJ0LcF5w/qt0QIwoSEB6ec32En1vOf+Q5Zt1Iwu9T0ELY7K1vfasdmJNQ70hv12hCx0ZLAS48Qmi04plzg5vHFQyMdTgW5G/okU14DG8l0c3K3xAdRsallJTPuY6JKjqjAzwbhIZwG8LD+WVxAuSiA1wL7ny7x3wZehpGhM1o+DDsDEPOqDeTfVRsUgTjyJDmDG1BK47X2gIKgZHAu6EDHGEWN1EVxyiR6CDa9Mhm6lw6gqrojF44n5xbBIjCAzf6AfcTIoRAhZ9z9zx8XbbuN65NvHGqza688kqtlswhKjZpwE1Cb2ISp0AojYtWCeG8HESH1ivhMhduTEZ0mGOE5CzhNQyRa/3yvcrohPMbHoqj0UIYjvOPIGXbE+K9hM1I/pObYXglvYdzi4pNinCR0vImb0NilFaYejfRofXK8ClMxIaIECZLJsfFceR9DAly7rnn2jAbYIQwLG5RRj80MJwIITjRPKFIDzj8+gi/Ttz9yfXHtchIADfccIMt+tGwWe5RsUkDDCed38jbEIfmQlfvJjrc7BgFPEGKKhBq5gFKRpz5O0aA6rXly5fbEBszKGJg1NsZ23Duwz2h8HyQK0ogAoEQubAc1xP3KDkZqs2YYRbvJtF1qGQHFZs0wegxOizDfqh3kxhudsKOhNYQao4fNzrHLRnRYUGkmKSNEBvD37COli7f7RZlbMM1wP3ockJOiAjLsY5qs9tuu82GzdSbyS8qNmmAkaOFjtGkUACDRwsbsWFRYoMhIJ9DGBIDQBWQC60lc/Nz7BEo8jnMGU8FESERjAotXVBvRwmH64q84eWXXy7vfe97bUEA15GSX1RsMoCLllJf5sDAiNKqwhCyKPFBGDhur7/+uu0cSNWaq1xLVnRY+AwzJpLbodWKcNGSdajwjG24HvCGGUDz5ptv1rDZCKJikyZcsG7YGnI3VM5gQDGUGk5LHkQasWG+HIoJOHZ4jc7TSeY48h7ei7fjpumlqADDgvDwdxYNs40dON/cn+T5GB6Jx2SuJSV3qNhkABcvFVOEheh740ozVXBSByGgbw7jrTEaAceO8BiPyYoO8D5asySB6QXOWGx4PuR7ODf8jvsuFZ/RCdcLYTP6zdx77722wCTZ60fJHSo2GYKoMC0srXKKBfB0aK2znkVJDQSA0laq1xAePBM8HXcsUwlRYmB4P6WtCxcutHPr8IghwiDROHBCpsIzOqChQePijjvusJP34d0qhUFKYvMX99z8mdI968R/6oi3KjZjRWwwVLTAuagRHFrnTnA0f5MZFF4QonzppZeskIMbBJXjjlAkC+9354pKNiraCLfRgRQxQ3ic18OiuZ7ignOmYbPCJiWx+eRdN3ymfP96KW0/6q2KzVgRG+CiJglJixzjSGWUM1a0yFMxikp0KJvetGmTHZeOQTtpwdLfCZx3kip8niIP8jwXXXSRrW7jNesRH77TnTv1fAoXzhFzJNF35p577rFhM6XwSElsPn3fHZ8p37dBPZsoYJhmz559etpd8gPU9WOkVHCyByJAFRuiw8gEhNnCO4mm60nyWTwcGg20iunwN3/+/NND7dBng+92oqbiUxhwbvBUmXqc0QA0bFa4pCQ2//OP7rRhNM3ZRIcLncEkCfnQWx7vBtHhUUNq2QehoZ8Ts4ZmGmaLhM/T8ZQGxOrVq63nQ2k14oOwIXrhjQgVn/zC+SFsxrn58Ic/bKccdw0BpTDRAoEswsXOSMe0jvFwqFJz+RsVnNziwmyUUBPOpP8NYuDyMJl6lnwXQsPAjeR7mCaYFrUTHzwfHt35VfHJHS5sRrXZBz7wAXsOlMJHxSbLYNi4EejnQWub2Qud4ODlqODkFow+hRqvvvqqrWaj/xPHm3CLE4BshDT5zkjxIexGvgCh43xzLej5zh4cT/JpVJsxyyujNbu8nVL4qNjkAG4KxIY+OG66XATHiQ7GB4PH+5TcQZiN/k+vvfaa9XoYXggwUJwLyJYQ8D14tXg75HwQH8bfwjDS+CCv5N7nzj+LekDJwb0SXm3GwKx6/xQXKjY5wgkOMX/Caa2trafDaRQO8HeMjt4w+YEyago3CLMxRA4NAM4DIuCEh3ORrfPB9zDuG51L8XjILVx66aV2RlJyP3hA7rcRHUJw7vfd9ighuE/oK3X11VfbTpqIt1J8qNjkEAwHN8a8efNsToFhWVzBgOvX4Vq5Sv7g2JNTYwRq+vBQ3cagoITanLHnMRfnBYFBaBAc5wFRck2eD8+IbaBRwiOL84DYnrHmBbHPeKE02Fy1GcdEKU5SEZuSk88/FCx78pvib3nNWxUb35w1UnrDJ8W/8nqR8lAIYayCkUBovv3tb8uzzz5rE9jOcHAzER7gkZtLGTk4/nijeCILFiywYVBn9J3hzwd4XK5xgkfsFvJPCKFrsDhPmcfRBsea+4Jw2d13321H6VCKm42bdslX7/+JPP7ky6Zx1+OtjY6KTYYgMg899JA89thj1phgKADvhhuL0mmeK4UBXggFAHimPDL6gBMewl75huIHRIcQoBMgrqPRJkLcA0QECDu+4x3vOJ3vUoobFZs8g8H42c9+Jj//+c9ttRoGAmhVIzaIjovfK4WD83oIfyE8JP6d6GAc8+n5RMKslIiOE59wEQoXICdCbik0OMYcR0KKiAxj2SmjBxWbEYAb/emnn5bvf//7snPnThs2cWC86JhIWG2kjJeSGAwjoR068TK+GgudQDl/4SI0kiAuCA9VeIgPHhHPmTrZTfjnFt5LaDdckPIJ1zrXPZ0z77rrLhvCVEYXKjYjBDf2unXr5MEHH7SJalqn7gbHkBE6cB0T1cspDhAbWuUktPF8XIfPQhGfcCiSwPOJXBh3jsWJUbhHlCsh4rhQbcYQQbfeequGzUYpKjYjCIJDS/ORRx6xng6tUBdWAwyUKx6g5aeiU1wgPvS7YUF8qDbjnLoFI1uI3ivXJWLDtcko5jy6hdd44tE8ofDFfU88uJ65tjk2t912m1xwwQXeX5TRiIpNAYDAPPfcc/KjH/3IhtXCvRwgl0NrbyTzAkrmID70uyFERAiO5zQmEB3EpxgaFU6I8IIoFyck5xYKYHhkPdc07+U6Dhcm9wiu2uw973mPhs3GACo2BQI34cGDB62X84c//MHG2MNzORghF1rDOKmXMzqgzw3Cg7ElBMdrhMeF3liK7VwjMAgS4hMuQCxuHe9hmJ+bb75Zw2ZjBBWbAgOBeeGFF+THP/6x7Nix43TsHBAkWr/cnDwWUg5AyQ6cW1dwwEIFHOuc98PiznsxNjjYZhpOXL/MHaSMHVIRGx1BIA9gSIjxr1mzxt6YxMjDw2o8ktzl0Xk4xWh0lOgQfiI3wiR869evt17url277Bh77lrgfNMo4b0uJOXCq4V8LXC94plTDECfJWVsocPVFCAYDCbyQnDoze7CD05kAEPjhrzh/YUe61fSg/NLGIoQ6/bt2+2kcS+++KL1ehnrDQHC++V9CJATIXdduGtiJK8NfpuwINe0K5JQxh4qNgUMNylJZCbuoozWGRZasxgTZ2AQHXCCM5KGRck9nHcaH3g7FJQ4D4gpFRjlmmFu+DvXBo0THrlmeM5nnRcEub5W+H5CZogMYqPX5thFxaYIoFWIh3PeeefZViGVQIxEEC46vKZFy82sojM26e3ttR03ERyEhzl9mF6BkByjVbgwHNeN84By6QW5sBkNJZ2uWVGxKRIwALQMqeChXBQjQXgtPLTGoxMdyLbxUIoPrgVExoXhmGKBka4RI6bUpm8XjRd3HfHIZ1xDJvLaSeZa4j0aNlMi0VGfixQMAfF7xljbsmWLNSjhwgPc8LQoXeUaRkCFR4kF1wrJexZKsN1zhpFxVXCRS/j15K4vrjcKAOhHoygOLX0ucgiHMBnYL3/5S9m6detp0UGMHBgFJzoYDS0mUJKF64TSa8SHTql4Kk1NTfaR1+Fl2Tx376GhoyjhqNiMEhAYwiO/+tWvpKWlxY5vRUgN0QkXHgQHo4AxUNFRMoFrx5UyMxo2w82cf/75ZxUgKIojFbHRK6iAQUQuv/xy+cxnPiOf+tSn5KqrrrI90ombh4c7ECU36CIJZeLz4aE3RUkFGjI0XhAZxEaFRskGehUVAYTLmAfk05/+tPz93/+9HUWXSjbCG4Q6nOgQfqM81omOK5MN94IUJRaISl1dnS1Y+eM//mNbnq9espItVGyKCG78hQsXykc+8hH5x3/8R3nf+95n57pnBkS8INcCdVVthN26u7vf1CdDUSKh0cIwOtdcc418/OMf10E0layjYlOEIDoYhjvvvFP+z//5P/LRj35Uzj33XNtZlPCHy9sgLnQYRXTCvR1XAqsoXCfkaJip9O6777YL15CiZBsjNmp0ihnCHm9961vlH/7hH+TP//zP7WRVDPZIaavL6yAsiIzzdgi1aZhNoVFCOTNDKGnYTMk1/r+897bPlO5ZK75TR7xVsdFOnYULYRBE5oorrpDFixfbPI8TExdCc8LDa4oK3IgFkajBGf1wvTBC85VXXmnDsYwIoCipktIIAp98z42fKdu3Xkrbj3qrYqNiU/ggFBgRhsGhpUr/CTfCNELDo4PX5Hf4e2TnUYcKz+iC80nYjLLmO+64Q972trdp/xklbVISm//xgds+U7F/g/jb1bMZTWBUCKVRQIC3wxQHGBUEhr8hLJHCgyeE8DiPiPex3qHCU9y4sNmqVavkgx/8oL02FCUTUhKb/+ej7/lM6d51OjbaKAaRYU74iy++2C7MIulEBAEhlBYuKghNpPBEosJTXHANUFSiYTMlm+hAnEpUEAi8Hfro0EGUFi5l0wiNK5tGeMKJFJ7wv/M5vlOFp3Dh3LhqM8JmFJNo2EzJFio2SkIwQuRzli1bJtddd5195DUC4qrYyOc4QQGEh3UUFriRqMM9IlDhKRxoQNDxl0bFBz7wAVs4oijZRMVGSQkEgrGwVq5cKVdffbWN5RPbx4uhagmjhdCECwvP+TuFBc7rccIU/j4Vn/zDMcd7od8VYbN77rnHNiQUJduo2Chpg1dDNRtDluDx0Bp2hoq/sSAykR4NYoTwuLHZeI/DvVeFJ/dwjMOrzQib0WBQlFygYqNkBYSFpPLq1avtMCaE2kgsIx60nDFiiAxLOLx2eR4EKFyceGTBKKr4ZBc8UKYCcNVmixYt8v6iKLlBxUbJOggP858Qarv22mvtIx4QguMWRMQJjxMS1uHpRHo9kQIFKj7pw/EnbEbhx3vf+14rOoqSa1RslJxCC5oqtqVLl9ocD+OyMXoBoxYgSng9CAeiEgki48QnvMLNiY96PqnBMWIsM1dt9pa3vMUKj6LkAxUbJW9g7Kh4WrBggR2X7dJLL5XZs2fbMdv4m5tJFDFBRNxnHKxHcKhuiyc+oOJzNgi7qza777777IjgipJPVGyUEQExYI56Ritg0i3CbRQYEG7DMOL5uFY3ghJNPKJ5Prx2ghMuPjAWBYh9xnukc64LmyE6ipJvVGyUggBhocBgxYoVVniocAsfkdqF3WJ5PRAuPuR8eOS1+0y48MBoFx/2j2qzefPmybve9S5bMahhM2WkULFRCg6MpAu3EWoj18NIBvTvIdSG8LhcjwuhQaR4IC54Rc7zcZ1LWTfaxcdVmyHaVJtxLBVlJFGxUQoeBIbZIMk34PUwp8qMGTOsICE6hOMQINehFKIJhxMfl/dhcXkfFveecBEqRgHCe+F40UmTsBmdbhVlpElFbEpOPv9QsOzJb4q/5TVvVWx8c9ZI6Q2fFP/K64210Nn8lNyAMLS0tMiuXbtkx44dsnv3bmlra7NTXBNK4xFvxr03XEgiQVgw1K5KDvHiOeud6PDI+kKEbSNsRtHFbbfdZkVZUQqFjZt2yVfv/4k8/uTL0tXV462NjoqNUvAgJgcOHJCdO3daAdq+fbucPHnSig6zj7r+O+698cQHMOAITviCELm/RS4jBduFp7d8+XJ597vfbQstFKWQULFRRjWE1Q4fPizbtm2zwoMAnThx4rT49PT0nBacZMTH4bweJz6RXlA+BQhvjGqzyy+/XG688UYbUlSUQkPFRhlTICZ79uyxwoMAEXpDcFjwengkjxMuPMkKEMKC4LhQHALkvCAXeuM92QrD8V0ubHbrrbfaDrOKUqio2ChjGoTl4MGDVoDI9/DY2tp6Vs6HSrbwAoLwx2RwHpATIhbn8SA87jmP7nki+C7CZpSKv+c977GVeopSyKjYKEoEHR0dZ4nPvn377Do3cgEixCO5n0jxSUaEeI/zfJwAuec8OgHifU6AnAjxyPuoNrvkkkvk5ptvttV6ilLoqNgoSgIw+uR9Dh06ZB/3799vn1P1hvA48XFLpPC4x2RAeBAPBAdvygkR4TjWU+ZNZ1etNlOKDRUbRUkT8jt4PYThWBAgHl3uxwkRHlEmAgS1tbU2N8PQPhQBaLWZUmwUjNhw8wUCZgkGzAtvZZYhBOHzFW4/CaX4QVgovcb72bt3r308evToWQUIeD+pCBDeDZ1Y6dBKWbNWmynFSMGIDT1KT5w4JSdOdsjAYPzepelSU10lE5ubpL6+Vvx+FRwlPyAueEAID4+I0bFjx06H35wH5EJwbqFx5MY2u/vuu+3QPYpSENiGEUsJrXi7KhEFIzanTpyUF194XZ55YaMcNYKTbfBmliyaLW+9/iJZtGCWlJfrEDrKyIGwEHZDgFwYjnyQq4JjASaeY2wz8jSKUjAMmOtzwAgGtr282lsZn4IRm47D++U3P/21fOMHz8qW/aeyHkmrr6+Rt7/1UvngvTdbsdFQmlJo0AE1PP9DtRvVZkx4pigFA5738X0SbN0jJRNmSsnEOd4f4pOK2OTUOlf5AzK5YkCaywel3HdmJN9sQDhi+tSJppW4QCY2j1OhUQoSrktyMxdddJG8853vlDvvvFOFRik8hvqt0AT2rpdg53FvZXbJqYUuLQnK1Ip+WVTTI02lobGrskVlZbnMnTtdli6aIw3Gw1EURVHSI9h5IiQ0x/YY4Rnw1maXnLsDzeUDsqKuS6ZV9lvxyQbkriZPGi8rls2TqVObbWWPoiiKkgbDgxI8sd+IzVoJdhz1VmYfX2A4NOlUrqj2B2Ruda8sNN5NfZa8GzrDzZk9zYpNY0OdtzZ52F9bkh0IJLEkP5BjOKn9xpmFz+XyfEAh73+6v+cI/W60783eEmv70v1tPpfbMx7atmHzW+SMqAylUvSsZXDI/s1tT7qEjkGi4xD9HIc+G+394Uvs6yOQ1OczWeJtdzZ/O7N7IFWCPe0SOLBZAod3SrA/ft4lE0r2/uYrwfoXvycV+9Z7q2KTcj+b1j0y9Nx3pe3ZH8njO3rlgUOTZUtXjWSavZkyebzcftu1ctedb5GZMyZ7a5Nj0NxUnV30izjTJyIeZcZrqqurlsrKCpsnSga+trunV3q6GfreiHkKpqTcCGlFRbkR1FLxl/rF72Ook+yNNIzB6ezoll6z/1zUZmtDf4iBr8RnCzGqqirtdiRLb2+/dHb2yKAd+j/5/S/1l9oQKZWFlLKzkPdIZv+5UU+1d5pzO5DTm5Vy+7o6prY+ExgYHja/fapD+ozhthdAkthSaHNsy8tLpdwbWSCb/cY4x4xawPk+caJdjrWelK6uXnuswuFaq6utlgkTGmXCuAZzvkNTdqdy3fGdHeac9/b0hfrWxcDuc0WFua6qT0cluE86Orqkrz/+uSsx1yPXR725J91neT+C2dHZbUUzleOfCqXmeNTUVEl1NfdC6Pzw2/1mm9lvbEsq13ossAG12BxjB7J138ckMCyB/Rtl6Imvy/C634pvxnIpu/kvxbcouZL8lKrR9j/+9WDd89+V8r3rvFWxSVdshl/4vmzY1y7fOjhZnjo5TjqH/N47Uocb4Pxzl8iH7r1FLr/0HKk1Jz8VDh1ulRdf2iC7mVnOXhzxGddULxdftNJWu3GRJwM39+trt8nrb2yVNmOAQkY9OTDs45oazM1UIw0NtTJp4jjbj4iLvNQYhEwvPm6Kp559VXbu3C8D3Nje+lhg9K+47BxZtmSeucmSF9xt2/fKcy+slePH21Laf4xc84Qmm4erra2x+z7ZNC4whAhwvN/v7e2T3zz2ouxsOeDd+LlhzerFcuklq+w2ObpNw+LRXz8ne/YetsKTLAhW84Rx5lyzv8bYj2+UKVPGS1NDvWl0hKY5SBeEvq2t02zTIdm955C5HrfIy69tln37jxjjfOb4hIx/ucyaNUXOPWexnLNqkcyfN0Nmm9ecB79pACRz2mlgPf/COtm4eZcV/FhwHufOmSZXXr5GxhthgxMn2+WZ5163Mz7GO3eI8ry5M+w1yb3JttOAOnjwmDz1zKty+MiJNwlptmhsrDO2Z6ksXzZPqkzjE7jXObbPPv+GHDvGtZ75b0+dMkEuvXiVOf5T7bHKJcFeY5+MyAw9/hUJ7NtoROaS3IlNTkcQCBObE0ePya9ax8tDhyfJrp7qtPWfC+zmGy+Xe993k7khpidt/BwvvLhevvT1H8lLL2+0rb1EkBv6+Edul1tvulLGjQtd3ImglfXgw7+WBx76lTU+tNpShd/ht88/b6lceN4yWbFsvr3568zNTwsrXVrMjfG//+Wb8uzvX7feRyIQ9z/9xLvlPcaLnGyEL1nj99vH/yCf/cJDsm3H3rT2H7i5MX6XXrzS7j8GkLApohuNtlOd8um/+y95+tnXpMcIT664971vl0+aY0JDwHHceA1//j/+XV78w4a0OzCXmf1avHiONcKrVy60fcgmmt+oMIKfynVOaxtj37LnoDnPb8jPHn1Gduzcd5bAxIMGxsoVC+QWc59dfOEKmTVzim1oJdqG4ydOyee/+LD8+GdPSbvxnmNBg+Kqy8+Vv/7UPVZ0YJcRmX/97HfMuYt/XdYYr+Kaq86Xv/qz98rs2VPt9Yio0rD7p//7TdlgjJ+bSC/bEEX58AdulXfcerW5DmvtOu51GlX/9rkHZetWY++M+GQK5/5P//jdctklq0+LWk4w10ng8HYZfubbMvzyT2yRgG/xZTkTm+z46knQWDYoi2u7ZXZVn1SmWQZNeGHG9EmyauUC0xpsTFloaGGfbOsw7nq3bQ0lA6EgPpPIvc82/NbhI8fl548+K5/5p6/Jv/3ng/Lb3/3BtOBa7QWe7pYQ6uGiCCTZ+qbldrKtXfqMAcjj7ltOGfF44qlX5B/+9zfkH//P/cZoPmvFm7BFPs9Fvhg0orxh40754pd/IP/zf31RvvmdX8i69dvt+Up2f3kbxvqNddvkS1/7oXzhv78vmza3JC00wPX1qvGA/sUY/69848eydj3zA50ZjFQZJQyac3pstw2jBbtOeitzR97Ehh+aXtEvK+u6bIVaajIRglgp3szihbNtzDxVcM+J6ePuJ+vu9g8MmM90hXIcI3Szsd20UD9vDMcPf/KE7N57yBqEdCBu321j6snvy/Hjp6ynMJLGZt2GHfJvn31QvvXgo7J9B610I7ij1PixX8da2+SbDzwqn/uvh+WFlzaYRk93UvvLcVlvBOvLX/uR9S7JT6YLuZ1Hf/17+ca3f2pFsL8/N0NOKSNBUILtxySwZ60EW/eZVmVuvMFw8iY2MM54N8uMdzPTeDepdvLEi5kyeYKsXL7AhpfSGQeNSbXajXDQSks2j0AIiBud1mIwhdxDLth/4Kh875Hfyi9++ZyNUacaLmCfiY2TwE3FUJN3Yv9HSmwdXd098rDZf44BcfJchUsKBbzKF19aL1+7/yc215Io7EmuiHzM977/W3nFvD9e3iRZ+I7nnl8rj/z4d/a7h1LIRykFzJBprDFiAH1rOlq9lbklr2JT7gvKzMo+WWoEZ1xZaoaCuDXx3WVL59rEeTr0mhsnZDhTM7Ykf1P9TK44euyk/OTnT8vzL66zYaZUku/Etomrp+qlnGrvDnmDBWBo+k3L/cc/e1p++7sXrXDmKhlcKCAgr72xVb778G9k1+4DMfNfnM5uI8a/e+plm0PoMtdstkDkyKU8/+J66erMXWmskj8ImxE+CxxtseG0fJBXsYGJ5YOywogNnTzLUujk2dzcJMuXzpPp0ybZBGY6IBjEv6lCS83YdtmQQipVRrmEFuaTT79qk6qpJKMHB4asZ5dqzoMcF7krDF0B6K0Vvl/86veyddvetMOJxQTH/YU/rLehVM5FNBDd/cbbJcdFqDibcK10dHYZwaHaq7Vg7gMlTYaN/Tt5MBRCaz/ircw9eRebKv+w7eS5uKZbGpLs5ElfFyqxViyfb6vR0oXWXlc3c8+ndrO0tXXYGzgblSbZYu36bbJ5a0tKyeO+/n5bsYV3kIpotJt95xiESsULQG0MO3bul1ff2Gyrns7afy8ZSNg1ckmVaN/BMhKQL6HK7tCR41GvXwRp67Y9RnCO5qTsmwIDKtooTS5MgXfnJ/NzH+3zZy3e+9Il6neetbA3uSPY2ymBg1slcGibaYFnt2ESj7yLDUwu75eVtV0yuaJf/El4N5TALl40W+bOnmrLJtPlVFun7TiWajiIzmKErAbMDZ+KR5AsVNmFOm8m13kRmCNox84DVjySrayjjw2eTarJ9Z7eflvai1jlYv/ZZ/Y9lf2nJb9h4y4vlBbaJj5rO1zWV9sCksgFjziZ7+ctFKPQjyba99DB15fkdkbD7a/rsJsM7C+e7N79h6N6s6zbbsSAfFwyUD5ebe4lSppt501vfSw47zTWyBviGRcSxjzbHC590aKdL64JGqzJwLGIde7p01du+3p5b04RzjvXYG1t9O10S7XZ3pwNwRUMSLDtsAR2v2G8m0PeyvwwImJTVzosC2p6ZL7xcGqMpxMPbsiZMybJqhULZPz4Rm9t6riyZ1rCyRpnByGkEzkqf+amp2MbJd3Tp020nTm54BPBdtBBFfFIVjwpe6Y6KVXPzpY/nzwloVEXvJVZpMl4q+w//RjovxCrH00ke/cdNdvVYbcP6PB3wXlL5e1vu0xuffvlckvEQoOFjpKJwCBcdP5yuenGy970HSwrjYedbAffaFSZz06b2iyzZk62/WiS6Slujb25Dg8aY0+jJxzOCQ0IjgXl04lg/6jovO6aC+TqK8+zudBkQtN49q2m0ZFMZ+h8wrGbML5BrrzsHLk5yjm79urzzfU10fZjigcNADoR2++J+A6W666+QOaYY8VwWenAeV44f6a89bqL3/Td4QsdVimCyqQ/XSwYjiZ4dKcED2wyrchT3tr84P+b+27/jH/3WvEZtUtESdMU8S24UHyT5plPJnHAzc4E9m2Q4H6zYxHuWqm5tzqHSmV3b5W0Dcb+LozvRRcutzfG1MkTEt6UsSAM8PrarbZK52RYazgZuNEXLphlew5TnMBFGQ+MOeWn6zfssPmeeL/VUF9nbvhz5frrLrSduWg9EbLr6UnsRYxvarCjKWC4kjHQdMCisIAhS1JNrE8zQrhm9SLbwz3R/sOulgPyh5c3nOV5RIPvwuC97fqL5YLzl9kwKccsmfJ0bsYrLl9jGyO0XOltzTm6+opzjYG5wBqH8AXvdPOWPQk7fCJ+n/6rD9jOm2+97qI3fc+ihbPskELh4P395vEX5cCBY3EbM1y/8+ZMl9tvu0YuvWS1eT7NGm9K0mMl/x00Qhab3169apFtfZ8haItYnn7uNdm5a3/cMBqe1LQpzfInH79TPvbhd8r15r5CpLds2xMKyXrviwbXGA2Ciy5Yblrgb55ci+P60isb7XfFK5PmPNE7nl7yHGvAQ3/hD+sSdoLGs2BcxEsuWmkjHhxP9onn561ZYjt8Rp4viooOHGq1FYzxQoBs1znmGv/UJ98r777jern+2gvP+p5LLl5pG0Xhvfq518mhklOji0C8ik3unVtvvlI++fF3W1EJ/+7whVEKGDYonYrbuLBtJw/I8PrHJLD9RWOTIya0LPHZuWz8iy6xj8lAiT4FLMmEV0fEs4HwTp7kcaLBhYQhxavJdM4aW/bckVrZs4OLn/Jn27Exxc8mguFAuOnufOf1tnfyn//JXbZVTU/pRMI6bFziZDUDw43hT7dzHjkbW/6dxmfjwQ11/pqlcsc7r5X3332j/O3/+IBcY8QHY5Zw/80+BTkA2d2knMI+zTQezW03XyX33HWDNTz3feAWmWRasgl218K1m8pYe5EQnllgWterVsy3Yaeammoj8itst4JkPGqliPHmrAniAHSe8FbmjxETG354WkW/rLKdPAejxozJz9CJc0kW5qzBUIYMZnrGllZfPsqfGQJllmk9Mk5WImObCoRXXNlzqmILhB/pDJpqCC5V8GTxHOrrarO6/4UKYovXPH58g/h9uTf25JrIC1RWhhozHGLCSyo0ox3TROk8buesCeRwzpp4jJjYwHgjMvS5oe9NZCdPbgTG4lq+bH5W5qxhBADKl1Mte3acMsa2Mw/lz9z0NbVVUlGRfiIyGoQRXdlzOq4AhRW2/Hk49+XP5G0yScQWG9VVlXbJxHNXlLhQ7mznrFknwfbczVkTjxG9uulnw2gCjCowvuxs78bGdWdPs31rmhrrvLXpg9BQTZOuWJyiuMAY60Iqf04Fkvttp4zY2Eo0b2UKsO+FVv6sKEpyBLvbJbB/i52zRnI4Z008RrwpxThpy+tCnTzDZ/KkQmvp4jm2YicyGZsOjBwQr+w5FFKI3ZQm38N35Kr8OdeQc6K/TKyy50T7Hyp/PiX9tiJNxUZRiobAsATb6MT5unnMb7lzOCMuNlW+gMyt6pHFNT3S4A1hQ9ULw5qvXDH/9HwXmUByPFHZcyhZWmlj6NEgZzMSoz9nC6p9KHuOJbaU8p6ZM8ZbGYYrfyYcqVqjKMVDsK9Lgoe2S/Dg1jdXoOWRgggST64YsKNBT/E6eTKBGCWe8+dOjyjxTI/BwWEbBopXTkt+qLl5nO1vEK2F32c8mpEe/TkTThihsJV4Mba9qbHe5sY43rE8nFYKDJIoyVYUpUCgE+epI6FOnCcOmNcjd+8WhNjU+odlQXWok2ddWVBmTAt14mTGxnihnWSh7DnUdyV2JRaJefptxPo9Wva5Kn/ONbbs+UT8sme8SZZ4PeOZ9bFQBiRVFCUJBsz9ypw1BzZJsKvNWzkyFITYwFTj1ayu65S5jT5ZOG+GLDSeDSWa2YCyZzr0xTOUzIdOeXV4h61I8lX+nG0oe7Z9bOJsOx4NHVatZxe1ED1/5c+KomQBc68HOlq9OWv2mlbnyI78UDBiQ75mcW2vXDy3Vi5YNVempDlnTTRCZc89tmd1bLGptaGk8rLY42edovy3gEZ/ThbKngkBMhFcrP0nX9M8vilUjBFj/zvMdxTS6M+KUkxw73HvUKRDF4RYCxWfiUbPSIbhIfM7x/bL4J4NeZuzJh4FIzaYt2l1JXLd0nFy0YoZ0tCY3pw10QiVPffFnfiJMdj8SYSRirH8mbJnPDuGEIklEoQQS424x9t/W5Fny58ZlkLVJvvoMR3NUFzUsvuAPPv71+V3T70Sc3nl1U3SevxUxo3azvYO2bd9h5w8uE+CeZqzJh4FIzYwYUKTLFnizVmT5mB30aBkGUMZqxKLsZWqqhjptUrKymN3JqR0mu8KGe3iMQx21Gojkng48cJoFGbEqkYDV/6c64q8YTski2GM2F6OZWjxViijEuYievzJl+X/++dvyKf/7gsxly9++QeyZesem2tOFzyofQePywvrdsvWg8ZmBUbe1BeO2PjLpGzSbKmau1JK68d5KzMHd5TWOCc6VtkzPbdDOYs6O3x8rDAapcOUP+PqFpPY4NUQRgzE8cjY/3HjGmwYLV6RhB39mSKJHO0+rTlEfZD+QN660QzXUWdXd9pj1inFA+eXEJpr/MVasDODTNvsfS4dCHdv2b5Pntt8VF47ViLHBzLvq5gphRNGqx0nJdOXSsnEuSLlbx5RNl0oe+YExit7JjdEi54wUsjQRje2eDR8V7GVPycqewaGh2Hk5JIE86vY8ucsF0kwXTVz5eA57T9wRNau32490US/EcsDK3TwsGmwcB3REHp97TY52nrCNIaSCM8W6T4r+QM7d+TYCVm7YYds2tcuGzpqZG9vhQwGR/biKQyx8fmlpHmm+GafI1Lf7K3MDna0ZyMQ8cqeGXeNEFpdLRNsxQ4j2fJn0wotpvJnW/Z8siNhy5mBPxsazP4TRvPWRSNU/py9vjack02bd8lvH/+D/PyXz8oDD/1Knnt+ra18S/QbhFop1y4m0WGfjhw9IU88/Yr84pfPyQ9+8qQ8/IPH7PD0iQ4p+8mcKDqGmhIP+sIx5P/W7XvlSFuP7Omrkq3dNXJqMEcTsiVJQVy1JVV14pu6WEqmLjLPs1cYAHa051PxR3vm5q2oqLDD2ieayKqrszfrLftcYsuek/BG8OwaG+riVqNBtsufEfCf/uIZ+V//8BX56//5efnq/T+Vg4eOxfRCw2HuG86Zr4hGLOYcbDTi+k//9375y09/zj6+/sZW6zUnAs+zubkpq/lMZXTB9dV6vE3WGa/mwIGj9j46PlAm6zprZX9fpYxkG3nkxcYYtpLx08U35xwpaZxsXmd3k0Jlz/FHey4t9XmdGkut8MRrKdM5lO8rlvLn8NGeY+0/++s6dSK0cXbfK3/uzsvoz/FgO2fPmmLL1akkHO2wv+zr9OmTkppVUxmbcJ/v2XdYNm9psX3roHvYLzt7qmRHd7V0Do+cdzPyd2l5tZRMXhDK11RnPg5aJMmM9lxpvBrmY2du8ESeDWOMITjFUv4cGu05ftkzAks1HnOf2zBinLwNfY1s+fPAyJY/M7ncuecssfPAJDuPfzFDQ2DJ4tl2dI14HY+VsQv3NyFzZuRlxtPwGVspEFhrvJsDfRUyUs1kH2GMeOGV3GJa0cab8c1aJSXjpov4s38TJSp7Boaq4QZmTpHyitidOsGWP2Nsi6T8mcoXPBv6xsTaXsSG/WeyuvLy+DkBwpLHT7SP6ICkbN+ypfNk5YoFUluT3UnmChH2j5DhZZestpPrjQVxHY1wmbpiJLzTWAt/96UR4RkaGrIh6A2bdtqp38PpNN7N9p5q4+FUS495PhL4GDI+kEwVTC4oM4Zt0jzxzVwhJbVN3srsQbyShHa8smcoKwuJTVm534Zk4gWSbPmz8RSKZfTnM2XPsfef8KG9yM2jC6XFgsYJ1W14TCOx+3YO/anNcvONl8uCedPNdo/uVj6noramygoN8+4zMrlSnJSVlcn0qRPlvDVL5KILlsdc7BxeTXVxG33RoCG8ddseaWk5aBuF4QwHS+RIf7ls6KoxjxUjEpPwhQxLbOOSS0rqJkjJzGVSMnG2ORPZv4lCZc+dEq/sGUiK08+kzrSSbT+bOC1HwlF4CsVS/owwkNCPW/ZsDDYGDUNWZfb/TAl4dKic6h2B0Z9pFU6c0CS33nSFXHPVedLYWBd3O4sd9o3w5vnnLpX3vedtNkel0zcXLwwJdcnFq+STH7tTPv2X98Zc3v/eG2X+3Bl2uu5kwb4dOXpS1m/cKYePnvDWns2poTLZYsRmd2+l9A3nP4PiqzDGJVtjkKWEv1RKmmeLb/ZqKzq5gNBRorJnoAWB28qxSDQdsS1/LpLRn7kAE432DHb/zUIILVRaG/8iJweUz4q80LaVGWM7VW656Uq5/bZrZMrkCXb9aAWhYWDUS41x+tC9t8iyZfPsMVCKF6InkyeNlyVL5sqK5fNjLvPnzbCjeaRyfXOP795zSHbu2m/tUzQGAyVysK9CNhnBOT5YnnfvxuwPO5T/1mFJdaP4pi+xxQFSkZ3RnSNBEBKN9gwVXpyUEBLCG78eS2xYiu+MJ2CFQDKjPQOltHg3/lKMeqn4/PH3nxxYrkZ/RugxtC62zaRuU42wXHrxSrn3fTfJfR+4RebOmWbP1WiG/T9n1UL5xB/dIRdfuMJ6nIoSDe5txlLDqzl4qDXuvX5ysEw2dtbKXuPdDOZ5CJuRaRoaL6JkwoxQuXPDpJCFyQGEujq744/2DDZ8VFVhW/XltOwThCpCQ0rED80VAsmUPQP7T3FEhfFs6NwZ8u5in5P29u7Q6M9ZKn9GVDCmnAOmlSAZPnPGZDn3nMXytusvlvfdfYP8zV/eK3fd+RaZOqW56D0ahITQbbyIAvs4b+50mamlzkoCyB9TfRZe7hyLPiMwe/oqZUt3tbQN5TffOSJ3bUllrfimLJQSOnJW1Xlrsw8eCKXP8UZ7BjwUBAlPAFzrOhaEkZjPn8HuCplkyp4t5m92/205syGB+IdGf263YpZp+TNGlYnybrrxMhseu/Od1xlReat86P23yF988m75//0/H5GPffh2WbZkrm0MFDtcV1MnN8vVV5xrQ4GxBIdw7Zatu+XkqY6Cb9QoIweNyJOUO2/eZfvXhJc7x4JOnuttJ88KWziQL/IvNhiypqlSMmu1lJhHhqrJFVYUEpQ9Ay7oS69slKeeedW2EOhDEs8ToOqDirT+BO8bac6UPcf37PD+Xn1jizz2xEuybfteW8kS7/2u/Lm/P/MiAYztTTdcLn/36fvkf/+/n7Di8jd/+X75wD032eqrCeMb43oAxQZis2TxHPnjj90pq1ctijkaAA0grsWDB1ttoYuiRIMGb6xy51hQ+ryrpzrUyXMof+Ho/N/FZZXim0y58zIpqWn0VmYfWoOM0Jyo7BmYY+I73/2V/OcXvyd/eHnDm8oGI6H8mb42hT768ymzjV1GSBKVtlNdxvhc//If35YnjeAiUPH2y5U/E6Ys4N0vXEx7q6qy3E4QSL+uaHD8T55stwlfjrOiRIPGdKxy53i02iFs6uRAP0PY5Me7ybvYlNQ3i2/GcikZP1OkNHdhEVqDGM1EZc9AopskOiG3RPkdOD36M0UCBWxtid92dycuZGB/uVA7OhPntxwjVf48WiAPM2PaxNBYdDEg/LvFGBKqi/Q4K5HQ6Dt85LisW7/DPEYvd46F7eTZXWWHsenOUxl0fsWGcucJM6WETpx12ZuzJhqEwuhjk6jsOR1s+TOjP/cZzyYXFWnmKzO1Lbbs2YhNrkqUCVH29uWv/Hm0QTht5swpcavMaARt37lPjrW22eeKEg7DcO3YuV+2mWsEe5QKeDN07tzQWStHBvLTyTOvYmPLnactkZJJ2Z2zJhqEHpIpe06XLuMF5MKQ41ngjYU8DG9lGiRb9pwu1ms0XpMawfRAbCY2N9lKwFjFKMFgwMbj9+8/6o1FlzlcCTRE+G6HNy9q/jA/R0TgrOvSPM3BZTpqoQF97FhodOeDB4+ldY+3D5XK1u5q2d1TKb15GMImf2JT4vfKnVfntNzZQSVWsmGxdCCMlo3Rn7npqOpie5mHYu++w9Ky+5AtLU603bY/UIzDGPLsEpc9pwuxYsJuIz36czHDKM7jmhpi9hniuHab1uv2nXttoyEbIDIdne7aHbbXL+HQREUx2YQcand3j903fh/DyeR5/bmKFIxCaEzv3nPQViwSZUgHJlNjYM5NXbW2Qi3XRz5/YlNZIyV5KHd22LJnczEnKntOF06wHf05w/JntvGNtVvlV4+9ID/5+VPy0CO/kXXrtyflkdhOqDE65SJeeHYJy57ThL42ofLnkR39uVjBm6FP08SJTbafUSwwxpu3YFA64ucHabwl0YAbGgrI7r2H5XVzzRHnZyI3nh8/3mY9nkQk+omQlxb/TUNDQ7L/wFE7QymeG9vBSMWHDrcmvp/M99t+Vkn8TqHB/Uzjl2gL4f1YC+F5GgKx4HuYo4pOnPv2H4n73kS00cmzq8b2vRkM5lYO8iM2dOIcNzU0NE2Oy50dDMCZTNlzujCvi61Iy7BFSMXRTx99Rv7lP74j//DPX5fvPvwbWy+fjIgxWB9jukUby62joydU9my8ply0WGlZjfToz8UOoyNMnzopbpEAYrOzZb8xzsdk0PZrikZoxAVGwkg0WjCCQtjl+z98XB783q/tzKg8P3LsZMJiF4x8TU1VzFJ0fpvpOhKNSo0ng8D88CdPyHfM7z/w0C/lYbMNe/cdsZ5yPGhcMR0Ig1rGCj8WKhThMCvtz8z9zjGPtTz+5EtxhZcG3j4j1nzXcSM6mUAnT0YTYMy0kzmeyTM/YlNeKb5J88U3I7flzg5uKDrDJVP2zAWLh0B1UEWFN7y39RbiQ98U29cmC8aWlgxhMy7GZMNybCe97Jsa68wN+OabjpYwJdrJjOhd6j+z/zwms/+0pmhdjdToz6MBRhufPXOyFZ1YcG1RILB9xz57fUQDm8t5a54Q30ty0LrGq/jiV34gX/raj2TTlhbPQ40PI0swanEscSw1+9Pc3Gi3JRH83gbjzXzt/p/abWC2UhouieC3J0+eYAWnyLTG9nt76tnX5P/++3fkf/1/X4m5fPUbP7FTOg8aDzAaRFQYLYCx0IhcZMpx491QKHDAiE4uO3nmQWxKpKR+ovhmrbCVaLksd3ZwMyVb9kxrkIHv6EB4xaVrZPXKhTJuXH3CjoQjPfoz85owMiyDNUYTBzwmXPJElXiI7axZU+zQ5ldceo5ccN4ymTC+IamOlLSqtPw5fTj2U6ZMSDjuGS1c+lJ0dMUugUYI5s+bbqfJzkWLH2+lvq5GZkw3nlgMMaGDKg2g0DWZg20w+9VQX2uH8WF09rEIIchDh47bEBreaDawnTx7q2RbT7V05LCTZ87FpqTUtJQnzglNkJaj0Z0jCY0J1mkTkImMLaOrXnvVeXbAw7/8s/fKe951vcyzAz3GbyHa8ucRGv2ZFjFDvCxeNNtODRBpXBBYW4lmxCaRECAql128Sj563zvkU2b/P/LB26z4MrdNIshb5arabSzAeRs/rtEOPR/Pm8Tb3WY8m9Y4JdB450uXzLUjY+dijh9GBF8wf4YVk1jfj1c1e/ZU0wjKjRjg1TDNwpzZ06wXPhYhArJtx17ZuXO/tW/ZItTJs1YO9uWuk2fOxUZqx0nJjKVeuXOVtzK3hMqeu7wQT3xDyE0xbdpEa7iXLpljL+S6Wob3TnzAKULIt7ElZj171jS58vI15safFFUU6dCabNkzITQGt1zE/i+eKwsWzAy1TJPwbKh2y9Xoz2OFxsZaOyRPvLlLOIeHDlMCfSRmuAuxmmq8pMuNdzp+XENWvRu+mzLtKy5bI1OnNpsGSvRtpeGCx82cLaEZRbNnXviuZrMNF124XKZNnWDFdaxBSoA5a+jESU4nm3QNl8rO7mrZlcNOnrkVGx/lzjPFN/sc40I0eytzDyKTzGjPQHyZpCY3CjeoHfnZrEvmZm0zxjYb5c/Jwk0+bepEueXtl8slF660+Zpoosg8PsmWPdMarapmwjRm6AyFYzgGdsbSBMeAIgm8Oy1/Tg+OLxVpU6aMt9dcLDiH9GnCu4lXAl1VWWkH+Lzw/GXSYDz2bAgO31FfVy0Xm+vt0ktWWS8sHkzTzRw8l160yl6f2duGGjn3nCXWCyeUNhYhUrGr5YDN57R3pNaJMxEEZ44a72azEZzWgdykOpIWG2xJUEq8JUkY3XnyPClhMc/zBYlxRCCZsmeMKy55qIRYbHUXQ90TH04EY49lo/w5EQgKxmje3Gly2y1Xyo1vvTRuC5NEcrJlz7QQmVrA5Wjw9Kqrq6z4JIILnvHntPw5fRD2GdMnx0y6Owjbuj4VsRoQnMM5s6fKXe96qxUHjHImuRO8CYz8xRetlHfeerXN17jrJBb8nWkRbn/HNXYeHjy3TDwcth/hREBvu/lKG3kYi14NEELbf+CIua/7bV4VbzObS2VTs3RUNEtPSW6mHk/qKuDSpkphwCzDKdiUkqp6KRk33Y4cQPlzvjiVQtkzBtsKjScup1tiSYgNv5GN8udosB3kTTD+EwlNmBv+/Xe/Xd59x/V28rB4VUd4G7bsOQnPjv2300Cbf8Bu22OQxP4TrqQirdAHJC1kMKbTp020ohMP8nC7dh+UQ4ePW489FlwXa85ZLPe+7+1y3TXn23BWsp66g/ciflMmj5frr71APvj+m2XN6kUJt9HB7y1fOlfuuftGect1F9n9owgiFeHjvTQCJzaPk2uuOt9+14UXLLeNwbEKVYuLFs6Sd9xytdx3761ZX+6551a56rrLZMKk3ESh/H9z3+2f8e9eK762w96qs3FCQz32YMM08S+4QMomz5USfxIJOgSGPjV5FBpuSgYvpJSSViAtLS7+WMtc01LiIp4xY5I17l09vbJh4y4bH2ffo33GLbx/2dJ5snjRLNv/wN3QhNWoHtq6fY/0GteXvEq0z8daqPYhBDF//gw5/9wlctWV58kdpqVItdiECYmH3Kej1x9e2iCtx9ts7iXab7gFY3TlZefaFjGv2fb167fbkQzwDDFekZ9xCy3MxebiX75sntTTig4zaHv2HpI31m2zrTHeF+3zLIgpeYZFC2fa56kYxVRZu267OS+7rbEui7ItbsEjeMu1Fxojmbgl70B4n372dWltPWkFPNr3smDEF8ybIVdcdo4tTgE88Zde3ihUT8baLs4D/VhWLp9vPVzWxYLjTR5uzqypnnEODbTKBU2frNMz0ZpjzfHGsPvNfVpqvfxyO6rBOUZc3nb9RcZLeoudSyjVhDzX/GQjVvPnTJfaWnNvmH8cI4ppuE7OnOfQcxaOG/tpt2Fcg93Xt1x7kbzr9mttlWi6s5VyDa5dv83eFxB5bN3CSNwcMzw5PIdkPLJhsz/Mjom9SXStJ7sgzheet0ymGw8xvFCHiAueHZMKnn/e0uwv5y61YsYEhslCWf5rZt9bTEMoUfl8ycnnHwqWPflN8be85q06gxOafiM0XcN+Cc4+V5pu/oTUr75afBX5SfanCsaSzk4vv7rZzu+QqJ/NXGNkCTk4seHGf/7F9fY77Lhq3vuiQaiJE8TJb2g4kz8h5EE/hldf32LDTInKryOxJZ4NtbJg/kxZunjO6dZpsnDin3thrRwyN0GiTnLcVFdfcZ71lvgNQoIvvLTeGmY8pERl3SuXzZdLLl5pq6rCW67Mi/Ps79+QYwl6pnMMr736fCtY5BxO26Ac8PyL6+SV1zbbEGu88cBqqqvk1puusJVdyYoNhRJ01mMOmng9ujm3nFfErNE0KPAIKWF99JfP2rGuAnG2i+sTD/e8NUuSauFz6np6GaFim7xi7odDR47bUYIRxLa2rtPXBgay0VxvkyaNt94MInvh+ctNQ2qOPRaZNADYP/JMGze3yMuvbJIDB4/KkSMn5KjZZ/qC2QkLzXZynNmGZuPJUOgQmql1iaxYPs/miTLZBn7n9y+ssw3AeH15uBapdrvaNO7wqJLxxDjXLXsOyTOmoXHUHNdU7/VoTDMNhcsuXW2FL14EoxBg5Iev3v8TefzJl23BVDxiig2XvPNouo3QdAyZltWcc2TyLR+XpjVXi79i7LqzilJs0IjA6CKGeO0InMs14oVMbG6UWTOnWIEd11RnvYxsw+9RuIKHged8zGwDIWhA8JqN107+CiOLZ0OJv1LYZCw24UKDR9NphIbOPmVzz5GZt31UJp57lYqNoijKGCcVsXlTjCBSaPBoEBoEh56mQ+ZvvEdRFEVRkuUssXFC0zvss3NTIzQ8Os+GcBpioyiKoiipcFpsEBqEBKFxobPOwTNCwyNiwzDU6tkoiqIoqXBabBCaPic0wyGB6fAe7WuznjDaYKDEVrkoiqIoSrJYsXFC02nExAoMHo0TnAjPRsNoiqIoSqr4BocD0jtcYoXGhsyM0Jz2aDyhcYLDAG1MJcqQNYqiKIqSLL6evkHpHDRi4zwYIzSuOCD8NX931WiKoiiKkgq+wUBQeoZ8VlzCPRkrMGFCE/JsjNiQs/E+rCiKoijJ4POXVUifnPFmIkNn4R6Oq0ZTFEVRlFQoaXn6keDeRx+Ww5s32byNE5Zwj8a9nrlokdx+121y0UXn2BFIFUVRlLELgx4/8NCv5OnnXk84c2jJjqd+ENz+80dkP2LjBMYrFrCvjdAgOMzk1jBxspx7/iqZN3eGjlukKIoyxjl85IT84ZWNsmPHvtPj3MWiZOuTPwyu/9kPZe/GzVZczvJswoSm2zwGS8vtxFoMN86Q4YqiKMrYhVG7u4xHk8ycViWbnvxR8NUf/1h2btjiCYwnOHg2nodDFdpA0GenDlUURVGUVPEx82ZPIDQWWkho8Go8z8Y8UhTAfDYqNIqiKEq6+Og30zNM6bMTGu+R0BkejREa1RlFURQlE4xng9jg1YQLTahPjQqNoiiKkg1Oi02oP40KjaIoipJ9zng2NmfjddxUoVEURVGyiG/IqAo5m5DQ+FRoFEVRlKzjeTY+FRpFURQlZ5Q8+dtfBr/10FPy6trdEvBWpkfQTqpWUjIynT3pUBT66fz/vv1tnozAvruOVCNx3EfytyF0zkfmtwOBgPh8IzNO4Eju95i93sxv8+sjc9xHh20tefWFp4JPPLtBdu056q1Kj6HhYRkeDkip3y9+f35vwkAgKIODQ/Z3S0vzP4xOb1+/lJWWjshv03PXZ445xz3f1+KAOeZciOVlpXm/EbjWBgYGpbKyIu/7DZ1d3VJXW+O9yh8YnT5zvZWXl+X9PuNcc84515zzfMJ+Y2MCZqmoyP+4jENDwzI4NCRV5nrLN/w213uZOeY+X/7vM467ta3GxqSPyP8fhGXFFxnvpQcAAAAASUVORK5CYII=";
+
+  if(pdfTemplate.logoBase64){
+    doc.addImage(
+      pdfTemplate.logoBase64,
+      "PNG",
+      margin,
+      8,
+      18,
+      18
+    );
+  }
+
+  doc.setTextColor("#FFFFFF");
+  doc.setFontSize(20);
+  doc.text("Adaptive Academic Pathway Report", margin + 30, 18);
+
+  doc.setFontSize(11);
+  doc.text(pdfTemplate.centerName, margin + 30, 26);
+
+  y = 45;
+
+  function ensurePageSpace(requiredHeight){
+    if(y + requiredHeight > pageHeight - 20){
+      doc.addPage();
+      y = 20;
+      doc.setFontSize(13);
+      doc.setTextColor("#2563eb");
+    }
+  }
+
+  function drawSection(title, lines, width = contentWidth, startX = margin){
+    const cleanLines = lines.map(line => stripHTMLTags(line));
+    const textLines = cleanLines.flatMap(line => doc.splitTextToSize(line, width - 10));
+    const sectionHeight = 14 + textLines.length * 6;
+
+    ensurePageSpace(sectionHeight + sectionSpacing);
+
+    doc.setFillColor(248,250,252);
+    doc.roundedRect(startX, y, width, sectionHeight, 3, 3, "F");
+
+    doc.setTextColor("#2563eb");
+    doc.setFontSize(13);
+    doc.text(title, startX + 5, y + 9);
+
+    doc.setTextColor("#111827");
+    doc.setFontSize(10);
+
+    let innerY = y + 17;
+    textLines.forEach(line => {
+      doc.text(line, startX + 5, innerY);
+      innerY += 6;
+    });
+
+    y += sectionHeight + sectionSpacing;
+  }
+
+  function drawTwoColumns(leftTitle, leftLines, rightTitle, rightLines){
+    const columnWidth = (contentWidth - columnGap) / 2;
+    const leftClean = leftLines.map(line => stripHTMLTags(line));
+    const rightClean = rightLines.map(line => stripHTMLTags(line));
+    const leftText = leftClean.flatMap(line => doc.splitTextToSize(line, columnWidth - 10));
+    const rightText = rightClean.flatMap(line => doc.splitTextToSize(line, columnWidth - 10));
+    const leftHeight = 14 + leftText.length * 6;
+    const rightHeight = 14 + rightText.length * 6;
+    const maxHeight = Math.max(leftHeight, rightHeight);
+
+    ensurePageSpace(maxHeight + sectionSpacing);
+
+    doc.setFillColor(248,250,252);
+    doc.roundedRect(margin, y, columnWidth, maxHeight, 3, 3, "F");
+    doc.roundedRect(margin + columnWidth + columnGap, y, columnWidth, maxHeight, 3, 3, "F");
+
+    doc.setTextColor("#2563eb");
+    doc.setFontSize(13);
+    doc.text(leftTitle, margin + 5, y + 9);
+    doc.text(rightTitle, margin + columnWidth + columnGap + 5, y + 9);
+
+    doc.setTextColor("#111827");
+    doc.setFontSize(10);
+
+    let leftY = y + 17;
+    leftText.forEach(line => {
+      doc.text(line, margin + 5, leftY);
+      leftY += 6;
+    });
+
+    let rightY = y + 17;
+    rightText.forEach(line => {
+      doc.text(line, margin + columnWidth + columnGap + 5, rightY);
+      rightY += 6;
+    });
+
+    y += maxHeight + sectionSpacing;
+  }
+
+  drawSection("Student Profile", [`Academic Stage: ${state.academicStage}`, `Scoring Mode: ${currentProfile.readiness?.scoringMode || state.scoringMode || "Strict"}`]);
+  drawSection("Summary Analysis", [currentProfile.summary]);
+  drawSection("Recommended Pathway", [currentProfile.primaryPathway]);  
+
+  // Custom section for Readiness Assessment with Chart
+  const readinessTitle = "Readiness Assessment";
+  const readinessLines = [
+    `Level: ${currentProfile.readiness.label}`,
+    `Score: ${currentProfile.readiness.score}/20`,
+    `Completeness: ${currentProfile.readiness.completeness || 0}%`,
+    `Strictness Factor: ${(currentProfile.readiness.strictnessMultiplier || 1).toFixed(2)}`
+  ];
+  const readinessTextLines = readinessLines.flatMap(line => doc.splitTextToSize(line, contentWidth - 10));
+  
+  const readinessSectionHeight = 14 + readinessTextLines.length * 6;
+
+  ensurePageSpace(readinessSectionHeight + sectionSpacing);
+
+  // Use a dark background to match the theme and enhance chart visibility
+  // Use a dark background to match the theme and enhance chart visibility
+  doc.setFillColor(17, 24, 39); // Matches #111827
+  doc.roundedRect(margin, y, contentWidth, readinessSectionHeight, 3, 3, "F");
+
+  doc.setTextColor("#2563eb");
+  doc.setFontSize(13);
+  doc.text(readinessTitle, margin + 5, y + 9);
+
+  doc.setTextColor("#111827");
+  doc.setTextColor(248, 250, 252); // Matches #f8fafc
+  doc.setFontSize(10);
+
+  let innerY = y + 17;
+  readinessTextLines.forEach(line => {
+    doc.text(line, margin + 5, innerY);
+    innerY += 6;
+  });
+
+  y += readinessSectionHeight + sectionSpacing;
+
+  if(currentProfile.strengths.length > 0 || currentProfile.risks.length > 0){
+    drawTwoColumns(
+      "Key Strengths",
+      currentProfile.strengths.length > 0 ? currentProfile.strengths : ["No strengths identified."],
+      "Potential Risk Factors",
+      currentProfile.risks.length > 0 ? currentProfile.risks : ["No significant risk factors identified."]
+    );
+  }
+
+  drawSection("Recommendations", currentProfile.recommendations.length > 0 ? currentProfile.recommendations : ["No recommendations generated."], contentWidth, margin);
+  drawSection("Available Resources", currentProfile.resources.length > 0 ? currentProfile.resources : ["No resources available."], contentWidth, margin);
+  drawSection("Inference Confidence", [`${currentProfile.confidence}% confidence in pathway recommendations.`], contentWidth, margin);
+  drawSection("Confidence Explanation", currentProfile.confidenceDrivers && currentProfile.confidenceDrivers.length > 0 ? currentProfile.confidenceDrivers : ["No confidence drivers available."], contentWidth, margin);
+  drawSection(
+    "Support",
+    [
+      "For personalized guidance and support, please contact our academic advisors:",
+      "Email: support@adaptroute.com",
+      "Phone: +351 920307867",
+      "Office Hours: Monday-Friday, 9 AM - 5 PM",
+      "",
+      "Our team provides counseling, application reviews, and career planning support."
+    ],
+    contentWidth,
+    margin
+  );
+
+  doc.setFontSize(9);
+  doc.setTextColor("#666");
+  doc.text("Generated by Adaptive Pathways & Readiness System | Powered by Symphony of Knowledge", margin, pageHeight - 10);
+  doc.text(new Date().toLocaleDateString(), pageWidth - margin - 40, pageHeight - 10);
+
+  doc.save("Adaptive_Academic_Pathway_Report.pdf");
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function restart(){
+
+  location.reload();
+
+}
+
+/* =========================================================
+   INIT
+========================================================= */
+
+document.addEventListener('DOMContentLoaded', function() {
+  // This ensures the script runs only after the entire page is loaded,
+  // preventing errors when embedding in platforms like WordPress.
+  renderNode("academicStage");
+});
+
+</script>
