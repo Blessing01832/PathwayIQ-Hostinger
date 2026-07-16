@@ -40,8 +40,16 @@ const protect = (req, res, next) => {
 // --- Middleware ---
 
 // Enable Cross-Origin Resource Sharing (CORS)
-// This allows your frontend (even on a different port/domain) to talk to this server.
-app.use(cors());
+const corsOptions = {
+  // Use environment variables for production URLs to avoid hardcoding.
+  origin: [
+    'http://localhost', // For local development
+    'http://127.0.0.1', // For local development
+    process.env.FRONTEND_URL, // e.g., https://adaptroute.com
+    process.env.FRONTEND_URL_WWW // e.g., https://www.adaptroute.com
+  ].filter(Boolean), // This removes any undefined entries if the env vars aren't set
+};
+app.use(cors(corsOptions));
 
 // Enable the express server to parse JSON request bodies
 app.use(express.json());

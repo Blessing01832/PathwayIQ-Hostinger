@@ -306,9 +306,22 @@ let readinessChartInstance = null;
 let authToken = localStorage.getItem('pathwayIQToken') || null;
 
 // --- API Configuration ---
-const API_BASE_URL = 'http://localhost:3000'; // IMPORTANT: Change this to your live backend URL for deployment
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE_URL = isLocal ? 'http://localhost:3000' : 'https://app.adaptroute.com';
+
 
 let userEmail = localStorage.getItem('pathwayIQUserEmail') || null;
+
+function updateAuthUI() {
+  const statusEl = document.getElementById('status');
+  if (statusEl) {
+    if (authToken && userEmail) {
+      statusEl.innerHTML = `Logged in as: <strong>${userEmail}</strong> | <a href="#" onclick="logout(); return false;" style="color: #f87171;">Logout</a>`;
+    } else {
+      statusEl.innerText = 'Adaptive academic intelligence system active.';
+    }
+  }
+}
 
 /* =========================================================
    PDF TEMPLATE CONFIG
@@ -1697,7 +1710,7 @@ function renderReadinessChart() {
 
 async function registerUser(email, password) { // Renamed to avoid conflict with potential element IDs
   try {
-    const response = await fetch('http://localhost:3000/api/auth/register', {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -1710,7 +1723,7 @@ async function registerUser(email, password) { // Renamed to avoid conflict with
     localStorage.setItem('pathwayIQToken', authToken);
     localStorage.setItem('pathwayIQUserEmail', userEmail);
     alert('Registration successful! You are now logged in.');
-    // You can update the UI to show the logged-in state here
+    updateAuthUI();
   } catch (error) {
     alert(`Registration Error: ${error.message}`);
   }
@@ -1718,7 +1731,7 @@ async function registerUser(email, password) { // Renamed to avoid conflict with
 
 async function loginUser(email, password) { // Renamed to avoid conflict
   try {
-    const response = await fetch('http://localhost:3000/api/auth/login', {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -1731,7 +1744,7 @@ async function loginUser(email, password) { // Renamed to avoid conflict
     localStorage.setItem('pathwayIQToken', authToken);
     localStorage.setItem('pathwayIQUserEmail', userEmail);
     alert('Login successful!');
-    // You can update the UI to show the logged-in state here
+    updateAuthUI();
   } catch (error) {
     alert(`Login Error: ${error.message}`);
   }
@@ -1743,7 +1756,7 @@ function logout() {
   localStorage.removeItem('pathwayIQToken');
   localStorage.removeItem('pathwayIQUserEmail');
   alert('You have been logged out.');
-  // You can update the UI to show the logged-out state here
+  updateAuthUI();
 }
 
 async function saveProfile() {
@@ -2020,6 +2033,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // This ensures the script runs only after the entire page is loaded,
   // preventing errors when embedding in platforms like WordPress.
   renderNode("academicStage");
+  updateAuthUI();
 });
 
 </script>
