@@ -252,6 +252,52 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+.modal-content {
+  background: #111827;
+  padding: 30px;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 400px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.hidden {
+  display: none;
+}
+.modal-content h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+.modal-content input {
+  font-size: 1.1rem; /* A bit larger */
+  background: #1f2937;
+  border: 1px solid #4b5563; /* A more visible border */
+  color: #f8fafc;
+  padding: 16px;
+  border-radius: 12px; /* Slightly less rounded */
+  margin-bottom: 15px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.modal-content input:focus {
+  outline: none;
+  border-color: #2563eb; /* Highlight on focus */
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
+}
 </style>
 
 
@@ -288,6 +334,23 @@ footer a:hover {
   </p>
 </footer>
 
+<div id="auth-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h2 id="auth-modal-title">Login</h2>
+    <form id="auth-form" onsubmit="handleAuthFormSubmit(event)">
+      <input type="text" id="auth-username" placeholder="Username" required>
+      <input type="text" id="auth-identifier" placeholder="Email or Username" required>
+      <input type="password" id="auth-password" placeholder="Password" required>
+      <div id="auth-error" style="color: #f87171; margin-bottom: 10px; display: none;"></div>
+      <button type="submit" class="primary" id="auth-submit-btn">Login</button>
+    </form>
+    <p id="auth-switch-text" style="text-align: center; margin-top: 15px;">
+      Don't have an account? <a href="#" onclick="showAuthModal('register'); return false;">Register here</a>.
+    </p>
+    <button class="primary" style="background: #4b5563; margin-top: 10px;" onclick="hideAuthModal()">Cancel</button>
+  </div>
+</div>
+
 <script>
 
 /* =========================================================
@@ -310,17 +373,61 @@ const isLocal = window.location.hostname === 'localhost' || window.location.host
 const API_BASE_URL = isLocal ? 'http://localhost:3000' : 'https://app.adaptroute.com';
 
 
+let username = localStorage.getItem('pathwayIQUsername') || null;
 let userEmail = localStorage.getItem('pathwayIQUserEmail') || null;
 
 function updateAuthUI() {
   const statusEl = document.getElementById('status');
   if (statusEl) {
-    if (authToken && userEmail) {
-      statusEl.innerHTML = `Logged in as: <strong>${userEmail}</strong> | <a href="#" onclick="logout(); return false;" style="color: #f87171;">Logout</a>`;
+    if (authToken && username) {
+      statusEl.innerHTML = `Logged in as: <strong>${username}</strong> | <a href="#" onclick="logout(); return false;" style="color: #f87171;">Logout</a>`;
     } else {
-      statusEl.innerText = 'Adaptive academic intelligence system active.';
+      statusEl.innerHTML = `
+        Adaptive academic intelligence system active. 
+        <button class="primary" style="width: auto; padding: 8px 12px; font-size: 0.9rem; float: right;" onclick="showAuthModal('login')">
+          Login / Register
+        </button>
+      `;
     }
   }
+}
+
+let authMode = 'login';
+
+function showAuthModal(mode = 'login') {
+  authMode = mode;
+  const modal = document.getElementById('auth-modal');
+  const title = document.getElementById('auth-modal-title');
+  const submitBtn = document.getElementById('auth-submit-btn');
+  const switchText = document.getElementById('auth-switch-text');
+  const usernameInput = document.getElementById('auth-username');
+  const identifierInput = document.getElementById('auth-identifier');
+  
+  if (mode === 'register') {
+    title.innerText = 'Register';
+    submitBtn.innerText = 'Register';
+    switchText.innerHTML = 'Already have an account? <a href="#" onclick="showAuthModal(\'login\'); return false;">Login here</a>.';
+    usernameInput.style.display = 'block';
+    usernameInput.required = true;
+    identifierInput.placeholder = 'Email Address';
+    identifierInput.type = 'email'; // Enforce email format on register
+  } else {
+    title.innerText = 'Login';
+    submitBtn.innerText = 'Login';
+    switchText.innerHTML = 'Don\'t have an account? <a href="#" onclick="showAuthModal(\'register\'); return false;">Register here</a>.';
+    usernameInput.style.display = 'none';
+    usernameInput.required = false;
+    identifierInput.placeholder = 'Email or Username';
+    identifierInput.type = 'text'; // Allow text for username login
+  }
+  
+  document.getElementById('auth-error').style.display = 'none';
+  document.getElementById('auth-form').reset();
+  modal.classList.remove('hidden');
+}
+
+function hideAuthModal() {
+  document.getElementById('auth-modal').classList.add('hidden');
 }
 
 /* =========================================================
@@ -1060,7 +1167,6 @@ function renderNode(nodeKey){
       </button>
     `).join("");
 
-    return;
   }
 
   
@@ -1073,7 +1179,6 @@ function renderNode(nodeKey){
 
     content.innerHTML = `
       <input id="user-input" placeholder="Enter response"/>
-
       <button class="primary" onclick="submitInput('${node.field}')">
         Continue
       </button>
@@ -1090,7 +1195,6 @@ function renderNode(nodeKey){
 
     content.innerHTML = `
       <textarea rows="6" id="user-input"></textarea>
-
       <button class="primary" onclick="submitInput('${node.field}')">
         Continue
       </button>
@@ -1708,61 +1812,82 @@ function renderReadinessChart() {
    PROFILE MANAGEMENT
 ========================================================= */
 
-async function registerUser(email, password) { // Renamed to avoid conflict with potential element IDs
+async function registerUser(username, email, password) { // Renamed to avoid conflict with potential element IDs
   try {
     const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username, email, password }),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Registration failed');
     
     authToken = data.token;
+    username = data.username;
     userEmail = data.email;
     localStorage.setItem('pathwayIQToken', authToken);
+    localStorage.setItem('pathwayIQUsername', username);
     localStorage.setItem('pathwayIQUserEmail', userEmail);
-    alert('Registration successful! You are now logged in.');
     updateAuthUI();
+    hideAuthModal(); // Close the modal on success
   } catch (error) {
-    alert(`Registration Error: ${error.message}`);
+    // Instead of an alert, show the error in the modal form
+    const errorEl = document.getElementById('auth-error');
+    if (errorEl) {
+      errorEl.innerText = error.message;
+      errorEl.style.display = 'block';
+    } else {
+      alert(`Registration Error: ${error.message}`);
+    }
+    throw error; // Re-throw for the form handler if needed
   }
 }
 
-async function loginUser(email, password) { // Renamed to avoid conflict
+async function loginUser(identifier, password) { // Renamed to avoid conflict
   try {
     const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ identifier, password }),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Login failed');
     
     authToken = data.token;
+    username = data.username;
     userEmail = data.email;
     localStorage.setItem('pathwayIQToken', authToken);
+    localStorage.setItem('pathwayIQUsername', username);
     localStorage.setItem('pathwayIQUserEmail', userEmail);
-    alert('Login successful!');
     updateAuthUI();
+    hideAuthModal(); // Close the modal on success
   } catch (error) {
-    alert(`Login Error: ${error.message}`);
+    // Show error in the modal form
+    const errorEl = document.getElementById('auth-error');
+    if (errorEl) {
+      errorEl.innerText = error.message;
+      errorEl.style.display = 'block';
+    } else {
+      alert(`Login Error: ${error.message}`);
+    }
+    throw error; // Re-throw for the form handler
   }
 }
 
 function logout() {
   authToken = null;
+  username = null;
   userEmail = null;
   localStorage.removeItem('pathwayIQToken');
+  localStorage.removeItem('pathwayIQUsername');
   localStorage.removeItem('pathwayIQUserEmail');
-  alert('You have been logged out.');
-  updateAuthUI();
+  // Reloading the page is a simple and effective way to reset the state.
+  location.reload();
 }
 
 async function saveProfile() {
   if (!authToken) {
-    alert('Please log in or register to save your profile.');
-    // Here you would typically show a login/register modal
+    showAuthModal('login'); // Show login modal if not authenticated
     return;
   }
   if (!currentProfile) return;
@@ -1786,7 +1911,7 @@ async function saveProfile() {
 
 async function loadProfile() {
   if (!authToken) {
-    alert('Please log in to load your saved profiles.');
+    showAuthModal('login'); // Show login modal if not authenticated
     return;
   }
 
@@ -1806,6 +1931,22 @@ async function loadProfile() {
   }
 }
 
+async function handleAuthFormSubmit(event) {
+  event.preventDefault();
+  const usernameValue = document.getElementById('auth-username').value;
+  const identifier = document.getElementById('auth-identifier').value;
+  const password = document.getElementById('auth-password').value;
+  document.getElementById('auth-error').style.display = 'none'; // Hide previous errors
+
+  try {
+    if (authMode === 'register') {
+      // Pass username only on registration
+      await registerUser(usernameValue, identifier, password);
+    } else {
+      await loginUser(identifier, password);
+    }
+  } catch (error) { /* Errors are now handled inside login/register functions */ }
+}
 
 /* =========================================================
    PDF UTILITY: STRIP HTML TAGS
@@ -1826,6 +1967,13 @@ function stripHTMLTags(html){
 ========================================================= */
 
 function downloadPDF(){
+
+  if (!authToken) {
+    // By requiring login to download, we encourage user sign-ups and
+    // create a consistent experience with other profile-related actions.
+    showAuthModal('login');
+    return;
+  }
 
   const { jsPDF } = window.jspdf;
 
