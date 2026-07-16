@@ -101,7 +101,7 @@ app.post('/api/auth/register', async (req, res) => {
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(400).json({ message: 'Email already exists' });
     }
-    res.status(500).json({ message: `Server error during registration: ${error.message}` });
+    res.status(500).json({ message: 'An internal server error occurred during registration.' });
   }
 });
 
@@ -123,7 +123,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
   } catch (error) {
     console.error('Login Error:', error);
-    res.status(500).json({ message: `Server error during login: ${error.message}` });
+    res.status(500).json({ message: 'An internal server error occurred during login.' });
   }
 });
 
@@ -142,7 +142,7 @@ app.post('/api/profiles', protect, async (req, res) => {
     res.status(201).json({ message: 'Profile saved successfully' });
   } catch (error) {
     console.error('Save Profile Error:', error);
-    res.status(500).json({ message: `Server error saving profile: ${error.message}` });
+    res.status(500).json({ message: 'An internal server error occurred while saving the profile.' });
   }
 });
 
@@ -158,7 +158,7 @@ app.get('/api/profiles/latest', protect, async (req, res) => {
     rows.length > 0 ? res.json(rows[0].profile_data) : res.status(404).json({ message: 'No profiles found' });
   } catch (error) {
     console.error('Get Latest Profile Error:', error);
-    res.status(500).json({ message: `Server error getting profile: ${error.message}` });
+    res.status(500).json({ message: 'An internal server error occurred while retrieving the profile.' });
   }
 });
 
