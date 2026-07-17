@@ -1604,7 +1604,8 @@ function renderResults(){
   document.getElementById('content').insertAdjacentHTML('beforeend', `
     <div class="result-actions" style="margin-top: 10px;"><button class="primary" style="background: #b91c1c;" onclick="restart()">Restart Assessment</button></div>
   `);
-
+  
+  updateAuthUI();
   renderReadinessChart();
   fetchAndEmbedResources();
 
@@ -1871,6 +1872,11 @@ async function registerUser(username, email, password) { // Renamed to avoid con
     localStorage.setItem('pathwayIQUserEmail', userEmail);
     updateAuthUI();
     hideAuthModal(); // Close the modal on success
+
+    // If the user logged in from the results page, refresh the resources
+    if (document.getElementById('dynamic-resources-content')) {
+        fetchAndEmbedResources();
+    }
   } catch (error) {
     // Instead of an alert, show the error in the modal form
     const errorEl = document.getElementById('auth-error');
@@ -1902,6 +1908,11 @@ async function loginUser(identifier, password) { // Renamed to avoid conflict
     localStorage.setItem('pathwayIQUserEmail', userEmail);
     updateAuthUI();
     hideAuthModal(); // Close the modal on success
+
+    // If the user logged in from the results page, refresh the resources
+    if (document.getElementById('dynamic-resources-content')) {
+        fetchAndEmbedResources();
+    }
   } catch (error) {
     // Show error in the modal form
     const errorEl = document.getElementById('auth-error');
