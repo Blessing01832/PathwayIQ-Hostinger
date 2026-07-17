@@ -4,15 +4,25 @@
   "description": "Backend service for PathwayIQ analysis and user management.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "dev:backend": "cross-env NODE_ENV=development node server.js",
+    "dev:frontend": "live-server --open=./index.html --port=8080",
+    "dev": "npm run db:up && concurrently \"npm:dev:backend\" \"npm:dev:frontend\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.9.1"
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.23.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "live-server": "^1.2.2"
   },
   "author": "",
   "license": "ISC"
