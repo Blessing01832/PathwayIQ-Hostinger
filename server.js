@@ -14,6 +14,7 @@ const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   port: process.env.DB_PORT || 3306,
+  port: process.env.DB_PORT || 3306,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   waitForConnections: true,
@@ -37,9 +38,24 @@ const protect = async (req, res, next) => {
         return next(error);
       }
 
+const protect = async (req, res, next) => {
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded; // Adds user payload (e.g., { id: userId }) to request
       next();
     } catch (error) {
+      next(new Error('Not authorized, token failed'));
+    }
+  } else if (!token) {
+    // Use next() to pass a structured error
+    const error = new Error('Not authorized, no token');
+    error.statusCode = 401;
+    next(error);
+    } catch (error) {
+      // Pass error to the centralized error handler
       next(new Error('Not authorized, token failed'));
     }
   } else if (!token) {
@@ -58,6 +74,7 @@ const corsOptions = {
   origin: [
     'http://localhost', // For local development
     'http://127.0.0.1', // For local development
+    'http://127.0.0.1:8080', // For live-server local development
     'http://127.0.0.1:8080', // For live-server local development
     process.env.FRONTEND_URL, // e.g., https://adaptroute.com
     process.env.FRONTEND_URL_WWW // e.g., https://www.adaptroute.com
@@ -88,6 +105,7 @@ app.post('/api/analyze', (req, res, next) => {
   } catch (error) {
     console.error('Analysis Error:', error);
     next(error); // Pass to centralized handler
+    res.status(500).json({ message: 'An internal server error occurred during analysis.' });
   }
 });
 
@@ -103,21 +121,32 @@ app.post('/api/auth/register', async (req, res, next) => {
   // Add trimming and more robust validation
   if (!username || username.trim().length < 3 || !email || !password || password.length < 6) {
     return res.status(400).json({ message: 'Username must be at least 3 characters, and password at least 6 characters.' });
+app.post('/api/auth/register', async (req, res) => {
+  const { username, email, password } = req.body;
+  // Add trimming and more robust validation
+  if (!username || username.trim().length < 3 || !email || password.length < 6) {
+    return res.status(400).json({ message: 'Username must be at least 3 characters, and password at least 6 characters.' });
   }
   try {
+    const trimmedUsername = username.trim();
     const trimmedUsername = username.trim();
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const [result] = await pool.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [trimmedUsername, email, hashedPassword]);
+    const [result] = await pool.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [trimmedUsername, email, hashedPassword]);
     const userId = result.insertId;
     const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '30d' });
+    res.status(201).json({ token, username: trimmedUsername, email });
     res.status(201).json({ token, username: trimmedUsername, email });
   } catch (error) {
     console.error('Registration Error:', error);
     if (error.code === 'ER_DUP_ENTRY') {
       const message = error.message.includes('email') ? 'Email already exists' : 'Username already exists';
       return res.status(400).json({ message });
+      const message = error.message.includes('email') ? 'Email already exists' : 'Username already exists';
+      return res.status(400).json({ message });
     }
+    next(error); // Pass to centralized handler
     next(error); // Pass to centralized handler
   }
 });
@@ -130,17 +159,23 @@ app.post('/api/auth/register', async (req, res, next) => {
 app.post('/api/auth/login', async (req, res, next) => {
   // Allow login with either email or username
   const { identifier, password } = req.body;
+app.post('/api/auth/login', async (req, res) => {
+  // Allow login with either email or username
+  const { identifier, password } = req.body;
   try {
     const [rows] = await pool.query('SELECT * FROM users WHERE email = ? OR name = ?', [identifier, identifier]);
+    const [rows] = await pool.query('SELECT * FROM users WHERE email = ? OR username = ?', [identifier, identifier]);
     const user = rows[0];
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30d' });
       res.json({ token, username: user.name, email: user.email });
+      res.json({ token, username: user.username, email: user.email });
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
     }
   } catch (error) {
     console.error('Login Error:', error);
+    next(error); // Pass to centralized handler
     next(error); // Pass to centralized handler
   }
 });
@@ -160,6 +195,7 @@ app.post('/api/profiles', protect, async (req, res, next) => {
     res.status(201).json({ message: 'Profile saved successfully' });
   } catch (error) {
     console.error('Save Profile Error:', error);
+    next(error); // Pass to centralized handler
     next(error); // Pass to centralized handler
   }
 });
@@ -192,8 +228,42 @@ const errorHandler = (err, req, res, next) => {
 };
 
 app.use(errorHandler);
+    next(error); // Pass to centralized handler
+  }
+});
+
+// --- Centralized Error Handler ---
+// This middleware must be the last one in the chain.
+const errorHandler = (err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  res.status(statusCode).json({
+    message: err.message || 'An internal server error occurred.',
+    // Only include the stack trace in development for debugging
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+  });
+};
+
+app.use(errorHandler);
 
 // --- Server Activation ---
+const startServer = async () => {
+  try {
+    // Test the database connection before starting the server
+    const connection = await pool.getConnection();
+    console.log('✅ Successfully connected to the database.');
+    connection.release();
+
+    // If connection is successful, start listening for requests
+    app.listen(PORT, () => console.log(`PathwayIQ server running on port ${PORT}`));
+
+  } catch (error) {
+    console.error('❌ Failed to connect to the database. Please ensure Docker is running and the .env file is configured correctly.');
+    console.error('Error details:', error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
 const startServer = async () => {
   try {
     // Test the database connection before starting the server
