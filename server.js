@@ -201,6 +201,63 @@ app.get('/api/profiles/latest', protect, async (req, res, next) => {
   }
 });
 
+/**
+ * @route   GET /api/resources
+ * @desc    Get personalized resources based on the user's latest profile
+ * @access  Private
+ */
+app.get('/api/resources', protect, async (req, res, next) => {
+  const userId = req.user.id;
+  try {
+    // 1. Get user's latest profile
+    const [profileRows] = await pool.query('SELECT profile_data FROM profiles WHERE user_id = ? ORDER BY created_at DESC LIMIT 1', [userId]);
+    if (profileRows.length === 0) {
+      return res.status(404).json({ message: 'No profile found. Please complete an assessment first.' });
+    }
+    const profile = profileRows[0].profile_data;
+
+    // 2. Extract signals/tags from the profile to match against resources
+    const userTags = new Set();
+    if (profile.userType) {
+      userTags.add(profile.userType.toLowerCase().replace(' ', '_'));
+    }
+    if (profile.primaryPathwayKey) {
+      userTags.add(profile.primaryPathwayKey.toLowerCase());
+    }
+    if (profile.risks && profile.risks.length > 0) {
+      profile.risks.forEach(risk => {
+        const lowerRisk = risk.toLowerCase();
+        if (lowerRisk.includes('scholarship') || lowerRisk.includes('funding')) userTags.add('funding_help');
+        if (lowerRisk.includes('cgpa') || lowerRisk.includes('academic')) userTags.add('low_cgpa');
+        if (lowerRisk.includes('career')) userTags.add('career_guidance');
+        if (lowerRisk.includes('publication')) userTags.add('publication_help');
+        if (lowerRisk.includes('supervisor')) userTags.add('supervisor_help');
+      });
+    }
+    if (profile.state.support) {
+      userTags.add(profile.state.support.toLowerCase().replace(/ /g, '_'));
+    }
+
+    const tagsToQuery = Array.from(userTags);
+    if (tagsToQuery.length === 0) {
+      return res.json([]); // Return empty if no specific tags can be generated
+    }
+
+    // 3. Fetch all resources and score them in-memory
+    const [allResources] = await pool.query('SELECT id, title, description, link, type, tags FROM resources');
+
+    const scoredResources = allResources.map(resource => {
+      let score = (resource.tags || []).reduce((acc, tag) => acc + (tagsToQuery.includes(tag) ? 1 : 0), 0);
+      return { ...resource, score };
+    }).filter(resource => resource.score > 0).sort((a, b) => b.score - a.score);
+
+    res.json(scoredResources.slice(0, 10)); // Return top 10 matched resources
+  } catch (error) {
+    console.error('Get Resources Error:', error);
+    next(error);
+  }
+});
+
 // --- Centralized Error Handler ---
 // This middleware must be the last one in the chain.
 const errorHandler = (err, req, res, next) => {

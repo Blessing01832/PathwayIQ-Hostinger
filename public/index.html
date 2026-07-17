@@ -1547,12 +1547,10 @@ function renderResults(){
       </div>
 
       <div class="card">
-        <div class="card-title">Available Resources</div>
-        ${
-          currentProfile.resources
-            .map(item => `<div class="recommendation">• ${item}</div>`)
-            .join("")
-        }
+        <div class="card-title">Personalized Resources</div>
+        <div id="dynamic-resources-content">
+            <p>Loading relevant resources for you...</p>
+        </div>
       </div>
 
       <div class="card">
@@ -1608,7 +1606,50 @@ function renderResults(){
   `);
 
   renderReadinessChart();
+  fetchAndEmbedResources();
 
+}
+
+/* =========================================================
+   RESOURCES UI
+========================================================= */
+async function fetchAndEmbedResources() {
+    const resourcesContent = document.getElementById('dynamic-resources-content');
+    if (!resourcesContent) return;
+
+    if (!authToken || !currentProfile) {
+        resourcesContent.innerHTML = `<p>Login to view personalized resources. <a href="#" onclick="showAuthModal('login'); return false;">Login now</a>.</p>`;
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/resources`, {
+            headers: { 'Authorization': `Bearer ${authToken}` },
+        });
+
+        if (!response.ok) throw new Error((await response.json()).message || 'Failed to fetch resources.');
+
+        const resources = await response.json();
+        
+        let resourcesHtml = (resources && resources.length > 0) ? resources.map((resource, index) => {
+            const isLast = index === resources.length - 1;
+            const style = `padding: 10px 0; ${!isLast ? 'border-bottom: 1px solid #1f2937;' : ''}`;
+            return `
+            <div class="recommendation" style="${style}">
+                <div style="font-weight: bold; color: #38bdf8;">${resource.title} <span style="font-size: 0.8rem; background: #334155; color: #e2e8f0; padding: 2px 6px; border-radius: 6px; vertical-align: middle;">${resource.type}</span></div>
+                <p style="font-size: 0.9rem; margin-top: 4px; margin-bottom: 8px; color: #cbd5e1;">${resource.description}</p>
+                <a href="${resource.link}" target="_blank" rel="noopener noreferrer">View Resource &rarr;</a>
+            </div>
+        `}).join('') : `
+            <p>We couldn't find specific resources matching your unique profile at this time. Contact support@adaptroute.com for a personalized consultation.</p>
+        `;
+
+        resourcesContent.innerHTML = resourcesHtml;
+
+    } catch (error) {
+        console.error('Fetch Embedded Resources Error:', error);
+        resourcesContent.innerHTML = `<p style="color: #f87171;">Could not load resources: ${error.message}</p>`;
+    }
 }
 
 /* =========================================================
