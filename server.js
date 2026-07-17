@@ -4,6 +4,7 @@ const cors = require('cors');
 const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const path = require('path');
 const { runAnalysis } = require('./analysisEngine');
 
 const app = express();
@@ -53,20 +54,37 @@ const protect = async (req, res, next) => {
 // --- Middleware ---
 
 // Enable Cross-Origin Resource Sharing (CORS)
+const allowedOrigins = [
+  'http://localhost',
+  'http://127.0.0.1',
+  'http://127.0.0.1:8080',
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL_WWW
+].filter(Boolean);
+
 const corsOptions = {
-  // Use environment variables for production URLs to avoid hardcoding.
-  origin: [
-    'http://localhost', // For local development
-    'http://127.0.0.1', // For local development
-    'http://127.0.0.1:8080', // For live-server local development
-    process.env.FRONTEND_URL, // e.g., https://adaptroute.com
-    process.env.FRONTEND_URL_WWW // e.g., https://www.adaptroute.com
-  ].filter(Boolean), // This removes any undefined entries if the env vars aren't set
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Dynamically allow the main domain and any subdomains
+    if (allowedOrigins.indexOf(origin) !== -1 || new URL(origin).hostname.endsWith('adaptroute.com')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
 };
 app.use(cors(corsOptions));
 
 // Enable the express server to parse JSON request bodies
 app.use(express.json());
+
+// --- Serve Static Frontend Files ---
+// This middleware tells Express to serve the 'index.html' file and any other
+// frontend assets (like CSS or images you might add later) from the 'public' directory.
+// It should come before your API routes.
+app.use(express.static(path.join(__dirname, 'public')));
 
 // --- API Routes ---
 
