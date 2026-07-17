@@ -125,7 +125,7 @@ app.post('/api/auth/register', async (req, res, next) => {
     const trimmedUsername = username.trim();
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const [result] = await pool.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [trimmedUsername, email, hashedPassword]);
+    const [result] = await pool.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [trimmedUsername, email, hashedPassword]);
     const userId = result.insertId;
     const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '30d' });
     res.status(201).json({ token, username: trimmedUsername, email });
@@ -148,11 +148,11 @@ app.post('/api/auth/login', async (req, res, next) => {
   // Allow login with either email or username
   const { identifier, password } = req.body;
   try {
-    const [rows] = await pool.query('SELECT * FROM users WHERE email = ? OR name = ?', [identifier, identifier]);
+    const [rows] = await pool.query('SELECT * FROM users WHERE email = ? OR username = ?', [identifier, identifier]);
     const user = rows[0];
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-      res.json({ token, username: user.name, email: user.email });
+      res.json({ token, username: user.username, email: user.email });
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
     }
